@@ -1,0 +1,26 @@
+/*
+    The title bar style. 
+*/
+
+QFrame {
+    background-color: #1E1E1E;
+    border-bottom-left-radius: 10px;
+    padding: 10px;
+}
+
+QPushButton {
+    background-color: #1E1E1E;
+    margin: 0px;
+}
+
+QPushButton:hover {
+    background-color: #d00902;
+    border-radius: 5px;
+}
+
+QToolTip {
+    background-color: #1E1E1E;
+    border-radius: 10px;
+    color: #0089b3;
+    padding: 7px;
+}

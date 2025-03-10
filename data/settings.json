@@ -1,0 +1,15 @@
+/*
+    Tasker settings file using json for an easy apdating in python.
+    Here there are app settings for apperance and it can be personnalize 
+    with the app, do not modify this file because you may crash the app.
+*/
+{
+    "settings" : {
+        "apparence" : {
+
+        },
+        "files": {
+
+        }
+    }
+}
