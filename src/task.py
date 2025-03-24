@@ -1,3 +1,3 @@
 """
-Task module that contains task class implementation
+    Task module that contains task class implementation.
 """

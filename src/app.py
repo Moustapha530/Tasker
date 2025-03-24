@@ -1,10 +1,6 @@
 """
-    The app module for manage application, for make basic app functions such as : 
-    - adding task
-    - create task list
-    - load and set stylesheets for widgets
-
-    This an opensource code made by [SalemMalola](https://github.com/SalemMalola)
+    The app module for manage application.
+    This an opensource code made by [SalemMalola](https://github.com/Salem530)
 """
 # Depencies importations
 from PyQt5.QtCore import Qt

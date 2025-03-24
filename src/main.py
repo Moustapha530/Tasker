@@ -1,5 +1,5 @@
 """
-    Tasker is a simple task manager with basic functionnalities and a specifible design
+    Tasker is a simple task manager with basic functionnalities and a specifible design.
 """
 from app import Tasker
 

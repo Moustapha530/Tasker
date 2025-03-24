@@ -1,3 +1,3 @@
 """
-The task list module used to manage task group
+    The task list module used to manage task group.
 """

@@ -1,5 +1,5 @@
 """
-    Module for manage settings of the app and load json data
+    Module for manage settings of the app and load json data.
 """
 from json.encoder import JSONEncoder
 
