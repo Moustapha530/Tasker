@@ -33,7 +33,7 @@ class Tasker(QMainWindow):
         self.layout.setContentsMargins(0, 0, 0, 0)
         # Title bar
         self.titleBar = CustomTitleBar(self)
-        self.layout.addWidget(self.titleBar, alignment=Qt.AlignTop | Qt.AlignRight)
+        self.layout.addWidget(self.titleBar, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
 
     def mainLoop(self) -> None:
         self.show()

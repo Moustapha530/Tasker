@@ -16,7 +16,7 @@ class CustomTitleBar(QFrame):
     """Personnalized title bar"""
     def __init__(self, parent : QMainWindow):
         super().__init__(parent)
-        parent.setWindowFlag(Qt.FramelessWindowHint)
+        parent.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setContentsMargins(0, 0, 0, 0)
         self.layout = QHBoxLayout(self)
         self.setStyleSheet(loadStyleSheet("titleBarStyle"))
