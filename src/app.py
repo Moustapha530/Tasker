@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 # Locals importations
-from customWidgets import CustomTitleBar, loadStyleSheet
+from customWidgets import AppLogo, CustomTitleBar, loadStyleSheet
 
 class Tasker(QMainWindow):
     """The app manager"""
@@ -27,6 +27,9 @@ class Tasker(QMainWindow):
         # Main layout
         self.layout = QHBoxLayout(self.centralWidget)
         self.layout.setContentsMargins(0, 0, 0, 0)
+        # Create the app logo
+        self.appLogo = AppLogo(self, "ressources//images//tasker.png")
+        self.layout.addWidget(self.appLogo, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         # Title bar
         self.titleBar = CustomTitleBar(self)
         self.layout.addWidget(self.titleBar, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
