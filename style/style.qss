@@ -24,6 +24,29 @@ QPushButton:hover {
     border-radius: 5px;
 }
 
+QTabWidget::pane {
+    border: 1px solid #333;
+    background-color: #1E1E1E;
+    border-radius: 5px;
+  }
+            
+  QTabBar::tab {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    padding: 8px;
+    border-radius: 5px;
+  }
+  
+  QTabBar::tab:selected {
+    background-color: #0089b3;
+    color: white;
+    font-weight: bold;
+  }
+  
+  QTabBar::tab:hover {
+     background-color: #1e1e1e2a;
+}
+
 QToolTip {
     background-color: #1E1E1E;
     border-radius: 5px;
