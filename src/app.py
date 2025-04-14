@@ -4,22 +4,23 @@
 """
 
 # Dependencies importation
+from pyqt_frameless_window import FramelessMainWindow
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
-    QMainWindow,
     QTabWidget,
     QWidget,
     QFrame,
-    QSizePolicy
+    QSizePolicy,
+    QVBoxLayout,
 )
 
 # Local importations
-from customWidgets import AppLogo, CustomTitleBar, loadStyleSheet
+from customWidgets import CustomTitleBar, loadStyleSheet
 
 
-class Tasker(QMainWindow):
+class Tasker(FramelessMainWindow):
     """The main application manager."""
 
     def __init__(self):
@@ -30,31 +31,23 @@ class Tasker(QMainWindow):
 
         # Set window properties
         self.setGeometry(100, 100, 900, 600)
-        self.setWindowTitle("Tasker")
         self.setStyleSheet(loadStyleSheet("style"))
 
         # Central widget and main layout
         self.centralWidget = QWidget(self)
         self.setCentralWidget(self.centralWidget)
-        self.layout = QHBoxLayout(self.centralWidget)
+        self.layout = QVBoxLayout(self.centralWidget)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create and add the app logo
-        self.appLogo = AppLogo(self, "ressources/images/tasker.png")
-        self.layout.addWidget(
-            self.appLogo, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
-        )
+        # Create the title bar
+        self.titleBar = CustomTitleBar(self, "Ts - Tasker")
+        self.titleBar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.layout.addWidget(self.titleBar, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Create the tab widget
         self.tabs = QTabWidget(self)
         self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)  # Make tabs responsive
         self.layout.addWidget(self.tabs, alignment=Qt.AlignmentFlag.AlignTop)
-
-        # Create the title bar
-        self.titleBar = CustomTitleBar(self)
-        self.layout.addWidget(
-            self.titleBar, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
-        )
 
         # Add the default welcome tab
         self.addTab("Welcome")
@@ -69,7 +62,6 @@ class Tasker(QMainWindow):
         tab = QWidget()  # Create a new tab widget
         tab_layout = QHBoxLayout(tab)  # Set a layout for the tab
         tab_frame = QFrame()  # Create a frame inside the tab
-        tab_frame.setStyleSheet("background-color: white; border-radius: 5px;")  # Basic styling
         tab_layout.addWidget(tab_frame)  # Add the frame to the layout
 
         self.tabs.addTab(tab, tab_name)  # Add the tab to the QTabWidget

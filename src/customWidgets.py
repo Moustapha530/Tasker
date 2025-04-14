@@ -2,47 +2,46 @@
     Module that contains customed widgets for the application.
 """
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QMouseEvent
 from PyQt5.QtWidgets import (
     QHBoxLayout,
     QFrame,
     QLabel,
     QMainWindow,
     QPushButton, 
+    QSizePolicy,
 )
 # Locals importations
 from filesManager import loadStyleSheet
 
-from PyQt5.QtWidgets import QLabel, QMainWindow
-from PyQt5.QtGui import QPixmap, QMouseEvent
-from PyQt5.QtCore import Qt, QPoint
 
-class AppLogo(QLabel):
+class AppLogo(QFrame):
     """ 
-    Custom widget that represents the application's logo and allows 
-    the user to move the main window by dragging it.
+    Custom widget that represents the application's title for
+    custom titlte bar, it allows the user to move the main window by 
+    dragging it.
     
     Attributes:
+        title (QLabel): The app title
         _old_pos (QPoint | None): Stores the last known mouse position 
                                   for window movement.
     """
 
-    def __init__(self, parent: QMainWindow, logo_path: str) -> None:
+    def __init__(self, parent: QMainWindow, title : str) -> None:
         """
-        Initializes the logo widget with an image and enables window dragging.
+        Initializes the title widget with an image and enables window dragging.
 
         Args:
             parent (QMainWindow): The main application window.
-            logo_path (str): Path to the image file for the logo.
+            title (str): The app title text.
         """
         super().__init__(parent)
-
-        # Load and display the logo image
-        self.setPixmap(QPixmap(logo_path))
-        self.setScaledContents(True)  # Enable automatic scaling
-        self.setFixedSize(50, 50)  # Set a fixed size (adjustable)
-        self.setCursor(Qt.CursorShape.OpenHandCursor)  # Change cursor to indicate dragging
-
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setObjectName("CAppLogo")
+        self.setFixedHeight(50)
+        self.layout = QHBoxLayout(self)
+        self.title = QLabel(f"<h1>{title}</h1>", self) # Create the title label
+        self.layout.addWidget(self.title, alignment=Qt.AlignmentFlag.AlignHCenter) # Add the lge to the layout
         # Store the last known position of the mouse (None when idle)
         self._old_pos: QPoint | None = None
 
@@ -89,6 +88,7 @@ class CustomTitleBar(QFrame):
     Custom title bar for the application.
     
     Attributes:
+        appLogo (AppLogo) : The dragable zone widget. 
         minimizeBtn (QPushButton) : The button to minimize the window.
         toogleMaximizeBtn (QPushButton) : The button to maximize or set the window normal.
         closeBtn (QPushButton) : The button to close the window.
@@ -97,26 +97,35 @@ class CustomTitleBar(QFrame):
         maximizeIcon (QIcon) : The toogleMaximizeBtn icon.
         layout (QHBoxLayout) : The layout to place buttons.
     """
-    def __init__(self, parent : QMainWindow) -> None:
+    def __init__(self, parent : QMainWindow, title : str) -> None:
         """
         Create a instance of the CustomTitleBar for the given parent window.
 
         Args:
             parent (QMainWindow): The object window parent.
+            title (str): The title for the app logo. 
         """
         super().__init__(parent)
-        parent.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.setContentsMargins(0, 0, 0, 0)
+        self.setFixedHeight(50)
+        self.setObjectName("CTitleBar")
         self.layout = QHBoxLayout(self)
-        self.setStyleSheet(loadStyleSheet("titleBarStyle"))
+        self.setStyleSheet(loadStyleSheet("customWidgetsStyle"))
+        # Create the dragable zone
+        self.appLogo = AppLogo(self, title)
+        self.appLogo.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding) # Expland this
+        self.layout.addWidget(self.appLogo)
+        # Create the dragable zone
+        self.btnFrame = QFrame(self)
+        self.layout.addWidget(self.btnFrame)
         # Create minimize button
-        self.minimizeBtn = QPushButton("", self)
+        self.minimizeBtn = QPushButton("", self.btnFrame)
         self.minimizeBtn.setIcon(QIcon("ressources\\icons\\minimize.png"))
         self.minimizeBtn.setFixedSize(35, 35)
         self.minimizeBtn.clicked.connect(self.window().showMinimized)
         self.minimizeBtn.setToolTip("Minimize window")
         # Create toogle minisize and maximize button
-        self.toogleMaximizeBtn = QPushButton("", self)
+        self.toogleMaximizeBtn = QPushButton("", self.btnFrame)
         self.resizeIcon = QIcon("ressources\\icons\\resize.png")
         self.maximizeIcon = QIcon("ressources\\icons\\maximize.png")
         self.toogleMaximizeBtn.setIcon(self.maximizeIcon)
@@ -124,14 +133,14 @@ class CustomTitleBar(QFrame):
         self.toogleMaximizeBtn.setToolTip("Toogle maximize")
         self.toogleMaximizeBtn.clicked.connect(self.toogleMaximize)
         # Create close button
-        self.closeBtn = QPushButton("", self)
+        self.closeBtn = QPushButton("", self.btnFrame)
         self.closeBtn.setIcon(QIcon("ressources\\icons\\cross.png"))
         self.closeBtn.setFixedSize(35, 35)
         self.closeBtn.clicked.connect(self.window().close)
         self.closeBtn.setToolTip("Close app")
         # Add buttons to the layout
         for btn in [self.minimizeBtn, self.toogleMaximizeBtn, self.closeBtn]:
-            self.layout.addWidget(btn)
+            self.layout.addWidget(btn)        
 
     # Toogle maximize command
     def toogleMaximize(self) -> None:
