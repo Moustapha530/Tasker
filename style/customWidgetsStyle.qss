@@ -1,24 +1,24 @@
 /*
     The title bar style. 
 */
-
-QFrame {
-    background-color: #1E1E1E;
-}
-
-QPushButton {
-    background-color: #1E1E1E;
-    margin: 0px;
-}
-
-QPushButton:hover {
-    background-color: #d00902;
+#CTitleBar{
+    border-bottom: 2px white;
     border-radius: 5px;
 }
 
-QToolTip {
-    background-color: #1E1E1E;
-    border-radius: 10px;
-    color: #0089b3;
-    padding: 7px;
+#CloseBtn{
+    background-color: transparent;
+}
+
+#CloseBtn:hover{
+    background-color: red;
+}
+
+QPushButton{
+    background-color: transparent;
+}
+
+QPushButton:hover {
+    border: 2px white;
+    border-radius: 5px;
 }

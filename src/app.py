@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QVBoxLayout,
 )
+from qt_material import apply_stylesheet, get_theme
 
 # Local importations
 from customWidgets import CustomTitleBar, loadStyleSheet
@@ -27,8 +28,9 @@ class Tasker(FramelessMainWindow):
         """Initialize the application window and UI components."""
         # Create the Qt application
         self.qtApplication = QApplication([])
+        apply_stylesheet(self.qtApplication, "dark_blue.xml")
         super().__init__()
-
+        
         # Set window properties
         self.setGeometry(100, 100, 900, 600)
         self.setStyleSheet(loadStyleSheet("style"))
@@ -47,7 +49,7 @@ class Tasker(FramelessMainWindow):
         # Create the tab widget
         self.tabs = QTabWidget(self)
         self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)  # Make tabs responsive
-        self.layout.addWidget(self.tabs, alignment=Qt.AlignmentFlag.AlignTop)
+        self.layout.addWidget(self.tabs)
 
         # Add the default welcome tab
         self.addTab("Welcome")

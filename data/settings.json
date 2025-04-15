@@ -4,12 +4,7 @@
     with the app, do not modify this file because you may crash the app.
 */
 {
-    "settings" : {
-        "apparence" : {
-
-        },
-        "files": {
-
-        }
+    "apparence" : {
+        "theme": "dark_blue"
     }
 }

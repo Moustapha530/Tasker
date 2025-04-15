@@ -41,7 +41,7 @@ class AppLogo(QFrame):
         self.setFixedHeight(50)
         self.layout = QHBoxLayout(self)
         self.title = QLabel(f"<h1>{title}</h1>", self) # Create the title label
-        self.layout.addWidget(self.title, alignment=Qt.AlignmentFlag.AlignHCenter) # Add the lge to the layout
+        self.layout.addWidget(self.title, alignment=Qt.AlignmentFlag.AlignHCenter) # Add the to the layout
         # Store the last known position of the mouse (None when idle)
         self._old_pos: QPoint | None = None
 
@@ -135,6 +135,7 @@ class CustomTitleBar(QFrame):
         # Create close button
         self.closeBtn = QPushButton("", self.btnFrame)
         self.closeBtn.setIcon(QIcon("ressources\\icons\\cross.png"))
+        self.closeBtn.setObjectName("CloseBtn")
         self.closeBtn.setFixedSize(35, 35)
         self.closeBtn.clicked.connect(self.window().close)
         self.closeBtn.setToolTip("Close app")
