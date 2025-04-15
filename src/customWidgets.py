@@ -1,15 +1,19 @@
 """
     Module that contains customed widgets for the application.
 """
-from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QIcon, QPixmap, QMouseEvent
+from PyQt5.QtCore import Qt, QPoint, QPropertyAnimation, QRect
+from PyQt5.QtGui import QIcon, QFont, QPixmap, QMouseEvent
 from PyQt5.QtWidgets import (
-    QHBoxLayout,
+    QDialog,
     QFrame,
+    QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMainWindow,
+    QMessageBox,
     QPushButton, 
     QSizePolicy,
+    QVBoxLayout,
 )
 # Locals importations
 from filesManager import loadStyleSheet
@@ -158,3 +162,121 @@ class CustomTitleBar(QFrame):
             self.toogleMaximizeBtn.setToolTip("Toogle minimize")
             self.toogleMaximizeBtn.setIcon(self.resizeIcon)
             self.window().showMaximized()
+
+class TaskListDialog(QDialog):
+    """
+    A modern dialog box for creating a new task list.
+
+    Attributes:
+        taskNameInput (QLineEdit): Input field for the task list name.
+        confirmButton (QPushButton): Button to confirm task list creation.
+        cancelButton (QPushButton): Button to cancel the dialog.
+    """
+
+    def __init__(self, parent=None):
+        """
+        Initialize the task list dialog.
+
+        Args:
+            parent (QWidget, optional): The parent widget.
+        """
+        super().__init__(parent)
+        self.setWindowTitle("New Task List")
+        self.setFixedSize(400, 200)
+        self.setStyleSheet(loadStyleSheet("customWidgetsStyle"))
+
+        # Layout
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        # Title Label
+        titleLabel = QLabel("Create a New Task List")
+        titleLabel.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        titleLabel.setStyleSheet("color: #E0E0E0;")
+        layout.addWidget(titleLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # Task Name Input
+        self.taskNameInput = QLineEdit()
+        self.taskNameInput.setPlaceholderText("Enter task list name...")
+        layout.addWidget(self.taskNameInput)
+
+        # Buttons Layout
+        buttonLayout = QHBoxLayout()
+
+        # Cancel Button
+        self.cancelButton = QPushButton("Cancel")
+        self.cancelButton.clicked.connect(self.reject)  # Close dialog on cancel
+        buttonLayout.addWidget(self.cancelButton)
+
+        # Confirm Button
+        self.confirmButton = QPushButton("Create")
+        self.confirmButton.clicked.connect(self.accept)  # Confirm action
+        buttonLayout.addWidget(self.confirmButton)
+
+        layout.addLayout(buttonLayout)
+
+class SideBar(QFrame):
+    """
+    Sidebar widget with navigation buttons and sliding animation.
+    """
+
+    def __init__(self, parent: QMainWindow) -> None:
+        super().__init__(parent)
+        self.setFixedWidth(60)
+        self.setStyleSheet(loadStyleSheet("customWidgetsStyle"))
+
+        self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+
+        buttons = {
+            "Close": "ressources\\icons\\left.png",
+            "Explorer": "ressources\\icons\\tasklist.png",
+            "Add Task List": "ressources\\icons\\new_tasklist.png",
+            "Edit Task": "ressources\\icons\\edit.png",
+            "Settings": "ressources\\icons\\settings.png",
+        }
+        self.buttons : dict[str, QPushButton] = dict()
+
+        for name, icon_path in buttons.items():
+            btn = QPushButton("", self)
+            btn.setIcon(QIcon(icon_path))
+            btn.setFixedSize(50, 50)
+            btn.setToolTip(name)
+
+            if name == "Close":
+                btn.clicked.connect(self.toggleSidebar)
+            elif name == "Add Task List":
+                btn.clicked.connect(self.showTaskListDialog)
+
+            self.layout.addWidget(btn)
+            self.buttons[name] = btn
+
+        # Animation for sidebar
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(300)  # 300ms animation speed
+
+    def showTaskListDialog(self) -> None:
+        """
+        Display the 'New Task List' dialog.
+        """
+        dialog = TaskListDialog(self)
+        if dialog.exec_():  # If 'Create' is clicked
+            task_name = dialog.taskNameInput.text().strip()
+            if task_name:
+                QMessageBox.information(self, "Task List Created", f"Task list '{task_name}' has been created!")
+            else:
+                QMessageBox.warning(self, "Invalid Name", "Task list name cannot be empty.")
+
+    def toggleSidebar(self) -> None:
+        """
+        Open or close the sidebar using an animation.
+        """
+        if self.width() == 60:  # If sidebar is open
+            self.animation.setStartValue(QRect(self.x(), self.y(), 60, self.height()))
+            self.animation.setEndValue(QRect(self.x(), self.y(), 0, self.height()))
+        else:  # If sidebar is closed
+            self.animation.setStartValue(QRect(self.x(), self.y(), 0, self.height()))
+            self.animation.setEndValue(QRect(self.x(), self.y(), 60, self.height()))
+
+        self.animation.start()
