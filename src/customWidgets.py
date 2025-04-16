@@ -256,7 +256,7 @@ class SideBar(QFrame):
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(300)  # 300ms animation speed
 
-    def showTaskListDialog(self) -> None:
+    def showTaskListDialog(self) -> str | None:
         """
         Display the 'New Task List' dialog.
         """
@@ -264,7 +264,7 @@ class SideBar(QFrame):
         if dialog.exec_():  # If 'Create' is clicked
             task_name = dialog.taskNameInput.text().strip()
             if task_name:
-                QMessageBox.information(self, "Task List Created", f"Task list '{task_name}' has been created!")
+                return task_name
             else:
                 QMessageBox.warning(self, "Invalid Name", "Task list name cannot be empty.")
 

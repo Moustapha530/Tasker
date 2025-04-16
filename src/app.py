@@ -19,7 +19,8 @@ from qt_material import apply_stylesheet
 
 # Local imports
 from customWidgets import CustomTitleBar, SideBar
-from themes import applyTheme, applyCTheme
+from tasksList import TaskList
+from themes import applyTheme
 
 class Tasker(FramelessMainWindow):
     """The main application window with VSCode-like layout."""
@@ -44,7 +45,7 @@ class Tasker(FramelessMainWindow):
 
         # Custom Title Bar at the top
         self.titleBar = CustomTitleBar(self, "Ts - Tasker")
-        self.titleBar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.titleBar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         mainLayout.addWidget(self.titleBar)
 
         # Bottom layout (horizontal): SideBar + TabWidget
@@ -54,27 +55,22 @@ class Tasker(FramelessMainWindow):
 
         # Sidebar (left)
         self.sideBar = SideBar(self)
-        self.sideBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.sideBar.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
+        self.sideBar.buttons.get("Add Task List").clicked.connect(self.addTaskList)
         contentLayout.addWidget(self.sideBar)
 
         # Tabs (main content)
         self.tabs = QTabWidget(self)
-        self.tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        
         contentLayout.addWidget(self.tabs)
 
         # Add horizontal layout into the main vertical layout
         mainLayout.addLayout(contentLayout)
 
-        # Add the default welcome tab
-        self.addTab("Welcome")
-
-    def addTab(self, tab_name: str) -> None:
-        """Add a new tab with a frame inside."""
-        tab = QWidget()
-        layout = QHBoxLayout(tab)
-        tab_frame = QFrame()
-        layout.addWidget(tab_frame)
-        self.tabs.addTab(tab, tab_name)
+    def addTaskList(self) -> None:
+        name = self.sideBar.showTaskListDialog()
+        self.tabs.addTab(TaskList(name), name)
 
     def mainLoop(self) -> None:
         """Start the application event loop."""
