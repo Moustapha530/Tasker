@@ -13,26 +13,31 @@ from PyQt5.QtWidgets import (
     QProgressBar
 )
 from task import SubTask, Task
-
+from themes import applyTaskTheme
 
 class TaskList(QWidget):
     def __init__(self, name: str):
         super().__init__()
         self.name = name
         self.tasks : list[Task] = []
-
+        self.setObjectName("TaskList")
+        self.setStyleSheet(applyTaskTheme())
         layout = QVBoxLayout(self)
 
         # Header with name and progress bar 
         top = QHBoxLayout()
+        top.setSpacing(0)
         self.nameLabel = QLabel(name)
         self.progress = QProgressBar()
         self.progress.setValue(0)
 
         self.addTaskBtn = QPushButton("")
         self.addTaskBtn.setIcon(QIcon("ressources\\icons\\new.png"))
+        self.addTaskBtn.setToolTip("Add task")
         self.saveBtn = QPushButton("")
-        self.saveBtn.setIcon(QIcon("ressources\\icons\\new.png"))
+        self.saveBtn.setIcon(QIcon("ressources\\icons\\save.png"))
+        self.saveBtn.setToolTip("Save")
+
 
         top.addWidget(self.nameLabel)
         top.addStretch()
@@ -58,18 +63,18 @@ class TaskList(QWidget):
     
 
 # Inside TaskListWidget class
-    def load_from_file(self, file_path: str):
+    def load_from_file(self, name: str):
         """
         Load a task list from a JSON file and reconstruct the task list.
 
         Args:
-            file_path (str): Path to the JSON file.
+            f"data\\taskList\\{name}" (str): Path to the JSON file.
         """
-        if not os.path.exists(file_path):
-            print(f"File '{file_path}' does not exist.")
+        if not os.path.exists(f"data\\taskList\\{name}"):
+            print(f"File \"data\\taskList\\{name}\" does not exist.")
             return
 
-        with open(file_path, "r") as f:
+        with open(f"data\\taskList\\{name}", "r") as f:
             try:
                 data = json.load(f)
             except json.JSONDecodeError as e:
@@ -123,5 +128,5 @@ class TaskList(QWidget):
             "name": self.name,
             "tasks": [t.toDict() for t in self.tasks]
         }
-        with open(f"{self.name}.json", "w") as f:
+        with open(f"data\\taskLists\\{self.name}.json", "w") as f:
             json.dump(data, f, indent=4)

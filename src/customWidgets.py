@@ -256,7 +256,7 @@ class SideBar(QFrame):
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(300)  # 300ms animation speed
 
-    def showTaskListDialog(self) -> str | None:
+    def showTaskListDialog(self) -> str:
         """
         Display the 'New Task List' dialog.
         """
@@ -266,7 +266,7 @@ class SideBar(QFrame):
             if task_name:
                 return task_name
             else:
-                QMessageBox.warning(self, "Invalid Name", "Task list name cannot be empty.")
+                return "Untitled task list"
 
     def toggleSidebar(self) -> None:
         """

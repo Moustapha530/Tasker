@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QTabWidget,
     QFrame,
     QSizePolicy,
+    QScrollArea,
 )
 from qt_material import apply_stylesheet
 
@@ -68,9 +69,21 @@ class Tasker(FramelessMainWindow):
         # Add horizontal layout into the main vertical layout
         mainLayout.addLayout(contentLayout)
 
-    def addTaskList(self) -> None:
+    def addTaskList(self):
         name = self.sideBar.showTaskListDialog()
-        self.tabs.addTab(TaskList(name), name)
+        task_list = TaskList(name)
+
+        # Make task list scrollable
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.addWidget(task_list)
+        container_layout.setContentsMargins(8, 8, 8, 8)
+
+        scroll_area.setWidget(container)
+        self.tabs.addTab(scroll_area, name)
 
     def mainLoop(self) -> None:
         """Start the application event loop."""
