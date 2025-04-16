@@ -16,8 +16,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 # Locals importations
-from filesManager import loadStyleSheet
-
+from themes import applyCTheme
 
 class AppLogo(QFrame):
     """ 
@@ -113,8 +112,9 @@ class CustomTitleBar(QFrame):
         self.setContentsMargins(0, 0, 0, 0)
         self.setFixedHeight(50)
         self.setObjectName("CTitleBar")
+        self.setStyleSheet(applyCTheme())
         self.layout = QHBoxLayout(self)
-        self.setStyleSheet(loadStyleSheet("customWidgetsStyle"))
+
         # Create the dragable zone
         self.appLogo = AppLogo(self, title)
         self.appLogo.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding) # Expland this
@@ -183,7 +183,7 @@ class TaskListDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("New Task List")
         self.setFixedSize(400, 200)
-        self.setStyleSheet(loadStyleSheet("customWidgetsStyle"))
+
 
         # Layout
         layout = QVBoxLayout(self)
@@ -192,7 +192,6 @@ class TaskListDialog(QDialog):
         # Title Label
         titleLabel = QLabel("Create a New Task List")
         titleLabel.setFont(QFont("Arial", 14, QFont.Weight.Bold))
-        titleLabel.setStyleSheet("color: #E0E0E0;")
         layout.addWidget(titleLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Task Name Input
@@ -223,15 +222,16 @@ class SideBar(QFrame):
     def __init__(self, parent: QMainWindow) -> None:
         super().__init__(parent)
         self.setFixedWidth(60)
-        self.setStyleSheet(loadStyleSheet("customWidgetsStyle"))
 
+        self.setObjectName("CSideBar")
+        self.setStyleSheet(applyCTheme())
         self.layout = QVBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         buttons = {
             "Close": "ressources\\icons\\left.png",
-            "Explorer": "ressources\\icons\\tasklist.png",
+            "Task lists": "ressources\\icons\\tasklists.png",
             "Add Task List": "ressources\\icons\\new_tasklist.png",
             "Edit Task": "ressources\\icons\\edit.png",
             "Settings": "ressources\\icons\\settings.png",

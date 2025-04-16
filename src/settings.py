@@ -3,6 +3,8 @@
 """
 from json.encoder import JSONEncoder
 
+from filesManager import loadJsonData
+
 def getSetting(name : str) -> str | dict | list:
         try:
             return settings[name]
@@ -17,4 +19,4 @@ def changeSettings(settingName : str, value : str | dict | list) -> None:
 
 
 encoder = JSONEncoder(indent=4)
-settings : dict = ("data\\settings.json")
+settings : dict = loadJsonData("data\\settings.json")

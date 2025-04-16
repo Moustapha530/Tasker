@@ -1,9 +1,0 @@
-/*
-    Tasker application global style for basic widgets and for theme managing, positionning, etc
-*/
-*{
-    border: 0px;
-    margin: 0px;
-    padding: 0px;
-    font-family: Arial, Helvetica, sans-serif;
-}
