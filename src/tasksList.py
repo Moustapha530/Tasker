@@ -3,6 +3,7 @@
 """
 import json
 import os
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget, 
@@ -23,10 +24,11 @@ class TaskList(QWidget):
         self.setObjectName("TaskList")
         self.setStyleSheet(applyTaskTheme())
         layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Header with name and progress bar 
         top = QHBoxLayout()
-        top.setSpacing(0)
+        top.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.nameLabel = QLabel(name)
         self.progress = QProgressBar()
         self.progress.setValue(0)
@@ -40,7 +42,6 @@ class TaskList(QWidget):
 
 
         top.addWidget(self.nameLabel)
-        top.addStretch()
         top.addWidget(self.progress)
         top.addWidget(self.addTaskBtn)
         top.addWidget(self.saveBtn)
@@ -49,6 +50,7 @@ class TaskList(QWidget):
 
         # Tasks area
         self.taskLayout = QVBoxLayout()
+        self.taskLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.addLayout(self.taskLayout)
 
         self.addTaskBtn.clicked.connect(self.addTask)

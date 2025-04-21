@@ -58,7 +58,6 @@ class Task(QFrame):
 
         # Header: checkbox + name + delete + add sub-task
         header = QHBoxLayout()
-        header.setSpacing(0)
         self.checkbox = QCheckBox()
         self.label = QLabel(name)
 
@@ -73,7 +72,6 @@ class Task(QFrame):
 
         header.addWidget(self.checkbox)
         header.addWidget(self.label)
-        header.addStretch()
         header.addWidget(self.addBtn)
         header.addWidget(self.deleteBtn)
         main_layout.addLayout(header)
