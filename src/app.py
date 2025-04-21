@@ -4,12 +4,12 @@
 """
 
 # Dependencies importation
-from pyqt_frameless_window import FramelessMainWindow
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QLabel,
+    QMainWindow,
     QVBoxLayout,
     QWidget,
     QTabWidget,
@@ -24,7 +24,7 @@ from customWidgets import CustomTitleBar, SideBar
 from tasksList import TaskList
 from themes import applyTheme
 
-class Tasker(FramelessMainWindow):
+class Tasker(QMainWindow):
     """The main application window with VSCode-like layout."""
 
     def __init__(self):

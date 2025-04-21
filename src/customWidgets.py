@@ -109,6 +109,7 @@ class CustomTitleBar(QFrame):
             title (str): The title for the app logo. 
         """
         super().__init__(parent)
+        parent.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setContentsMargins(0, 0, 0, 0)
         self.setFixedHeight(50)
         self.setObjectName("CTitleBar")
@@ -246,8 +247,6 @@ class SideBar(QFrame):
 
             if name == "Close":
                 btn.clicked.connect(self.toggleSidebar)
-            elif name == "Add Task List":
-                btn.clicked.connect(self.showTaskListDialog)
 
             self.layout.addWidget(btn)
             self.buttons[name] = btn
@@ -280,3 +279,5 @@ class SideBar(QFrame):
             self.animation.setEndValue(QRect(self.x(), self.y(), 60, self.height()))
 
         self.animation.start()
+        self.updateGeometry()
+        self.repaint()
