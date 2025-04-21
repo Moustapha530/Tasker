@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
+    QLabel,
     QVBoxLayout,
     QWidget,
     QTabWidget,
@@ -63,27 +64,55 @@ class Tasker(FramelessMainWindow):
         # Tabs (main content)
         self.tabs = QTabWidget(self)
         self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        
+        self.tabs.setTabsClosable(True)
+        self.tabs.tabCloseRequested.connect(self.closeTab)
         contentLayout.addWidget(self.tabs)
 
         # Add horizontal layout into the main vertical layout
         mainLayout.addLayout(contentLayout)
+        self.addWelcomeTab()
 
     def addTaskList(self):
         name = self.sideBar.showTaskListDialog()
-        task_list = TaskList(name)
+        # Remove welcome tab if it's the only tab
+        if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
+            self.tabs.removeTab(0)
 
-        # Make task list scrollable
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
+        task_list = TaskList(name)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
 
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.addWidget(task_list)
-        container_layout.setContentsMargins(8, 8, 8, 8)
+        scroll.setWidget(container)
 
-        scroll_area.setWidget(container)
-        self.tabs.addTab(scroll_area, name)
+        self.tabs.addTab(scroll, name)
+        self.tabs.setCurrentWidget(scroll)
+
+
+    def addWelcomeTab(self) -> None:
+        self.welcomeTab = QWidget()
+        layout = QVBoxLayout(self.welcomeTab)
+        label = QLabel("👋 Welcome to Tasker!")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(label)
+        self.tabs.addTab(self.welcomeTab, "Welcome")
+
+    def closeTab(self, index: int):
+        widget = self.tabs.widget(index)
+
+        # Prevent closing the welcome tab if it's the only one
+        if widget == self.welcomeTab and self.tabs.count() == 1:
+            return
+
+        self.tabs.removeTab(index)
+        if widget:
+            widget.deleteLater()
+
+        # If all task tabs are closed, show the welcome tab again
+        if self.tabs.count() == 0:
+            self.addWelcomeTab()
 
     def mainLoop(self) -> None:
         """Start the application event loop."""
