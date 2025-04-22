@@ -58,7 +58,7 @@ class Tasker(QMainWindow):
         # Sidebar (left)
         self.sideBar = SideBar(self)
         self.sideBar.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
-        self.sideBar.buttons.get("Add Task List").clicked.connect(self.addTaskList)
+        self.sideBar.buttons.get("Add task list").clicked.connect(self.addTaskList)
         contentLayout.addWidget(self.sideBar)
 
         # Tabs (main content)

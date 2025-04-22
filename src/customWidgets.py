@@ -223,6 +223,8 @@ class SideBar(QFrame):
     def __init__(self, parent: QMainWindow) -> None:
         super().__init__(parent)
         self.setFixedWidth(60)
+        self.setMaximumWidth(60)
+        self.setMinimumWidth(0)
 
         self.setObjectName("CSideBar")
         self.setStyleSheet(applyCTheme())
@@ -231,10 +233,10 @@ class SideBar(QFrame):
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         buttons = {
-            "Close": "ressources\\icons\\left.png",
-            "Task lists": "ressources\\icons\\tasklists.png",
-            "Add Task List": "ressources\\icons\\new_tasklist.png",
-            "Edit Task": "ressources\\icons\\edit.png",
+            "Close side bar": "ressources\\icons\\left.png",
+            "Show task lists": "ressources\\icons\\tasklists.png",
+            "Add task list": "ressources\\icons\\new_tasklist.png",
+            "Open task list": "ressources\\icons\\edit.png",
             "Settings": "ressources\\icons\\settings.png",
         }
         self.buttons : dict[str, QPushButton] = dict()
@@ -243,10 +245,12 @@ class SideBar(QFrame):
             btn = QPushButton("", self)
             btn.setIcon(QIcon(icon_path))
             btn.setFixedSize(50, 50)
-            btn.setToolTip(name)
+            btn.setToolTip(f"{name}")
 
-            if name == "Close":
+            if name == "Close side bar":
                 btn.clicked.connect(self.toggleSidebar)
+                btn.setShortcut("ctrl+t")
+                btn.setToolTip(f"{name} ({btn.shortcut().toString()})")
 
             self.layout.addWidget(btn)
             self.buttons[name] = btn
@@ -269,15 +273,12 @@ class SideBar(QFrame):
 
     def toggleSidebar(self) -> None:
         """
-        Open or close the sidebar using an animation.
+        Slide the sidebar in or out using width animation (layout-friendly).
         """
-        if self.width() == 60:  # If sidebar is open
-            self.animation.setStartValue(QRect(self.x(), self.y(), 60, self.height()))
-            self.animation.setEndValue(QRect(self.x(), self.y(), 0, self.height()))
-        else:  # If sidebar is closed
-            self.animation.setStartValue(QRect(self.x(), self.y(), 0, self.height()))
-            self.animation.setEndValue(QRect(self.x(), self.y(), 60, self.height()))
-
+        target_width = 0 if self.width() > 30 else 60
+        self.animation = QPropertyAnimation(self, b"maximumWidth")
+        self.animation.setDuration(300)
+        self.animation.setStartValue(self.width())
+        self.animation.setEndValue(target_width)
         self.animation.start()
-        self.updateGeometry()
-        self.repaint()
+
