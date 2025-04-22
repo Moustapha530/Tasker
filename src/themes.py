@@ -20,14 +20,31 @@ def applyTheme() -> str:
 
     QPushButton:hover{{
         background-color: {theme['secondaryLightColor']};
+        border-radius: 5px;
     }}
+
+    QProgressBar{{
+        color: {theme['primaryColor']};
+        border-radius: 50%;
+    }}
+
+    QScrollBar:vertical {{
+        width: 12px;
+        background: #2b2b2b;
+    }}
+
+    QScrollBar::handle:vertical {{
+        background: #888;
+        border-radius: 6px;
+    }}
+
+    QScrollBar::handle:vertical:hover {{
+        background: #aaa;
+    }}
+
 
     QTabWidget::pane {{
         background-color: {theme['primaryColor']};
-    }}
-
-    QTabBar{{
-        border-bottom: 1px solid {theme['primaryTextColor']};
     }}
 
     QTabBar::tab {{
@@ -45,31 +62,32 @@ def applyTheme() -> str:
         background-color: transparent;
     }}
 
-    QTabBar::tab:!selected {{
-        color: {theme['primaryLightColor']};
-        border: 1px solid {theme['primaryTextColor']};
-        background-color: transparent;
-    }}
-
     QTabBar::tab:hover {{
         background-color: {theme['secondaryLightColor']}; /* Light hover effect */
+        border: none;
     }}
 
     QTabBar::close-button {{
-        image: url(ressources/icons/close.png);
+        image: url(ressources/icons/cross.png);
         subcontrol-position: right;
     }}
 
     QTabBar::close-button:hover {{
-        background: red;
+        background-color: red;
     }}
     """
 
 def applyCTheme() -> str:
     theme = get_theme(getCurrentTheme())
     return f"""
-   #CTitleBar{{
-        border-bottom: 1px solid {theme['primaryTextColor']};
+    #CTitleBar{{
+        background-color: {theme['secondaryColor']};
+        border-radius: 15px;
+    }}
+
+    #CTitleBar QFrame{{
+        background-color: {theme['secondaryColor']};
+        border-radius: 15px;
     }}
 
     #CloseBtn:hover{{
@@ -77,7 +95,8 @@ def applyCTheme() -> str:
     }}
 
     #CSideBar{{
-        border: 1px solid {theme['primaryTextColor']};
+        background-color: {theme['secondaryColor']};
+        border-radius: 15px;
     }}
     """
 
@@ -88,18 +107,12 @@ def applyTaskTheme() -> str:
         background-color: red;
     }}
 
-   #Task{{
-        border-bottom: 1px solid ...;
-        margin-bottom: 2px;
-        padding: 10px;
-    }}
-
-    #Task:hover{{
-        background-color: {theme['secondaryLightColor']};
+    #Task{{
+        background-color: transparent;  
     }}
 
     #TaskList{{
-        background-color: {theme['primaryColor']};
+        background-color: transparent;
     }}
     """
 
