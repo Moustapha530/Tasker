@@ -197,6 +197,7 @@ class TaskListDialog(QDialog):
 
         # Task Name Input
         self.taskNameInput = QLineEdit()
+        self.taskNameInput.returnPressed.connect(self.accept)
         self.taskNameInput.setPlaceholderText("Enter task list name...")
         layout.addWidget(self.taskNameInput)
 

@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QTabWidget,
-    QFrame,
     QSizePolicy,
     QScrollArea,
 )
