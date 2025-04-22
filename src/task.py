@@ -1,6 +1,7 @@
 """
     Task module that contains task class implementation.
 """
+from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QFrame, 
@@ -9,8 +10,11 @@ from PyQt5.QtWidgets import (
     QCheckBox, 
     QPushButton,
     QVBoxLayout,
+    QLineEdit,
     QScrollArea,
+    QStackedLayout,
     QWidget,
+    QGraphicsOpacityEffect
 )
 from themes import applyTaskTheme
 
@@ -61,6 +65,20 @@ class Task(QFrame):
         self.checkbox = QCheckBox()
         self.label = QLabel(name)
 
+        self.labelEdit = QLineEdit(self.name)
+        self.labelEdit.hide()
+        self.labelEdit.setStyleSheet("background-color: transparent; color: white; border: none;")
+
+        self.renameBtn = QPushButton("")
+        self.renameBtn.setIcon(QIcon("ressources/icons/edit.png"))
+        self.renameBtn.setToolTip("Rename task")
+        self.renameBtn.setObjectName("RenameBtn")
+        self.renameBtn.clicked.connect(self.showRenameInput)
+        self.labelEdit.returnPressed.connect(self.commitRename)
+
+        header.addWidget(self.renameBtn)
+
+
         self.addBtn = QPushButton("")
         self.addBtn.setIcon(QIcon("ressources\\icons\\new.png"))
         self.addBtn.setToolTip("Add sub-task")
@@ -71,7 +89,14 @@ class Task(QFrame):
         self.deleteBtn.setObjectName("DeleteBtn")
 
         header.addWidget(self.checkbox)
-        header.addWidget(self.label)
+
+        self.labelContainer = QWidget()
+        labelLayout = QStackedLayout(self.labelContainer)
+        labelLayout.setStackingMode(QStackedLayout.StackAll)
+        labelLayout.addWidget(self.label)
+        labelLayout.addWidget(self.labelEdit)
+        header.addWidget(self.labelContainer)
+
         header.addWidget(self.addBtn)
         header.addWidget(self.deleteBtn)
         main_layout.addLayout(header)
@@ -97,6 +122,20 @@ class Task(QFrame):
         sub.checkbox.stateChanged.connect(self.syncWithSubtasks)
         self.syncWithSubtasks()
 
+
+def animateLabel(self):
+    effect = QGraphicsOpacityEffect(self.label)
+    self.label.setGraphicsEffect(effect)
+
+    anim = QPropertyAnimation(effect, b"opacity")
+    anim.setDuration(300)
+    anim.setStartValue(0.0)
+    anim.setEndValue(1.0)
+    anim.start()
+    self.label.anim = anim
+
+
+
     def removeSubtask(self, sub):
         if sub in self.subtasks:
             self.subtasks.remove(sub)
@@ -121,6 +160,20 @@ class Task(QFrame):
             self.checkbox.blockSignals(False)
 
         self.parentList.updateProgress()
+
+    def showRenameInput(self):
+        self.labelEdit.setText(self.label.text())
+        self.label.hide()
+        self.labelEdit.show()
+        self.labelEdit.setFocus()
+
+    def commitRename(self):
+        new_name = self.labelEdit.text().strip()
+        if new_name:
+            self.name = new_name
+            self.label.setText(new_name)
+            self.labelEdit.hide()
+            self.animateLabel()
 
 
     def toDict(self):
