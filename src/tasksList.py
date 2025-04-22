@@ -3,15 +3,19 @@
 """
 import json
 import os
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget, 
     QVBoxLayout, 
     QHBoxLayout, 
     QLabel, 
+    QScrollArea,
     QPushButton, 
-    QProgressBar
+    QProgressBar,
+    QInputDialog, 
+    QMessageBox,
+    QMenu,
 )
 from task import SubTask, Task
 from themes import applyTaskTheme
@@ -132,3 +136,102 @@ class TaskList(QWidget):
         }
         with open(f"data\\taskLists\\{self.name}.json", "w") as f:
             json.dump(data, f, indent=4)
+
+class TaskListPreview(QWidget):
+    openRequested = pyqtSignal(str)
+    renameRequested = pyqtSignal(str)
+    deleteRequested = pyqtSignal(str)
+
+    def __init__(self, name: str):
+        super().__init__()
+        self.name = name
+        self.setObjectName("TaskListPreview")
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(10, 5, 10, 5)
+
+        icon = QLabel()
+        icon.setPixmap(QIcon("ressources/icons/folder.png").pixmap(24, 24))
+
+        self.label = QLabel(name)
+        self.optionsBtn = QPushButton("⋯")
+        self.optionsBtn.setFixedWidth(30)
+        self.optionsBtn.setVisible(False)
+
+        layout.addWidget(icon)
+        layout.addWidget(self.label)
+        layout.addStretch()
+        layout.addWidget(self.optionsBtn)
+
+        self.optionsBtn.clicked.connect(self.showOptions)
+
+    def showOptions(self):
+        menu = QMenu(self)
+        rename_action = menu.addAction("Rename")
+        delete_action = menu.addAction("Delete")
+        action = menu.exec_(self.optionsBtn.mapToGlobal(self.optionsBtn.rect().bottomRight()))
+        if action == rename_action:
+            self.renameRequested.emit(self.name)
+        elif action == delete_action:
+            self.deleteRequested.emit(self.name)
+
+    def enterEvent(self, event):
+        self.optionsBtn.setVisible(True)
+
+    def leaveEvent(self, event):
+        self.optionsBtn.setVisible(False)
+
+    def mouseDoubleClickEvent(self, event):
+        self.openRequested.emit(self.name)
+
+class TaskListExplorer(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("TaskListExplorer")
+
+        layout = QVBoxLayout(self)
+        title = QLabel("Task Lists")
+        title.setStyleSheet("font-weight: bold; font-size: 16px;")
+        layout.addWidget(title)
+
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setWidgetResizable(True)
+
+        self.container = QWidget()
+        self.listLayout = QVBoxLayout(self.container)
+        self.scrollArea.setWidget(self.container)
+
+        layout.addWidget(self.scrollArea)
+
+    def addTaskListPreview(self, name: str):
+        preview = TaskListPreview(name)
+        preview.openRequested.connect(self.openList)
+        preview.renameRequested.connect(self.renameList)
+        preview.deleteRequested.connect(self.removeList)
+
+        self.listLayout.addWidget(preview)
+
+    def openList(self, name: str):
+        print(f"Open task list: {name}")
+        # Appelle ici ton code pour ouvrir la liste dans un onglet
+
+    def renameList(self, old_name: str):
+        new_name, ok = QInputDialog.getText(self, "Rename Task List", "New name:", text=old_name)
+        if ok and new_name.strip():
+            # Remplace le widget
+            for i in range(self.listLayout.count()):
+                item = self.listLayout.itemAt(i).widget()
+                if item.name == old_name:
+                    item.name = new_name
+                    item.label.setText(new_name)
+                    break
+
+    def removeList(self, name: str):
+        confirm = QMessageBox.question(self, "Delete", f"Delete task list '{name}'?")
+        if confirm == QMessageBox.Yes:
+            for i in range(self.listLayout.count()):
+                item = self.listLayout.itemAt(i).widget()
+                if item.name == name:
+                    item.setParent(None)
+                    item.deleteLater()
+                    break
