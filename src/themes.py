@@ -25,7 +25,7 @@ def applyTheme() -> str:
 
     QProgressBar{{
         color: {theme['primaryColor']};
-        border-radius: 50%;
+        border-radius: 10px;
     }}
 
     QScrollBar:vertical {{
@@ -49,6 +49,7 @@ def applyTheme() -> str:
 
     QTabBar::tab {{
         background-color: {theme['secondaryColor']};
+        border-radius: 10px;
         color: {theme['primaryTextColor']};
         padding: 8px 16px;
         margin: 0px;
@@ -59,6 +60,9 @@ def applyTheme() -> str:
         color: {theme['primaryLightColor']};
         border: none;
         border-top: 3px solid {theme['primaryColor']}; /* Line at top like VSCode */
+        border-radius: 0px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
         background-color: transparent;
     }}
 
