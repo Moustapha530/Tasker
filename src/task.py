@@ -123,18 +123,16 @@ class Task(QFrame):
         self.syncWithSubtasks()
 
 
-def animateLabel(self):
-    effect = QGraphicsOpacityEffect(self.label)
-    self.label.setGraphicsEffect(effect)
+    def animateLabel(self):
+        effect = QGraphicsOpacityEffect(self.label)
+        self.label.setGraphicsEffect(effect)
 
-    anim = QPropertyAnimation(effect, b"opacity")
-    anim.setDuration(300)
-    anim.setStartValue(0.0)
-    anim.setEndValue(1.0)
-    anim.start()
-    self.label.anim = anim
-
-
+        anim = QPropertyAnimation(effect, b"opacity")
+        anim.setDuration(300)
+        anim.setStartValue(0.0)
+        anim.setEndValue(1.0)
+        anim.start()
+        self.label.anim = anim
 
     def removeSubtask(self, sub):
         if sub in self.subtasks:
@@ -173,6 +171,7 @@ def animateLabel(self):
             self.name = new_name
             self.label.setText(new_name)
             self.labelEdit.hide()
+            self.label.show()
             self.animateLabel()
 
 
