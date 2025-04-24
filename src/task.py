@@ -35,6 +35,7 @@ class Task(QFrame):
         self.checkbox = QCheckBox()
         self.label = QLabel(name)
         self.labelEdit = QLineEdit(name)
+        self.labelEdit.setStyleSheet("background-color: transparent")
         self.labelEdit.hide()
 
         self.renameBtn = QPushButton()
