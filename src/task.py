@@ -1,129 +1,139 @@
 """
-    Task module that contains task class implementation.
+    Task module: contains Task and SubTask classes used in Tasker app.
 """
-from PyQt5.QtCore import QPropertyAnimation
+
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QFrame, 
-    QHBoxLayout,
-    QLabel,
-    QCheckBox, 
-    QPushButton,
-    QVBoxLayout,
-    QLineEdit,
-    QScrollArea,
-    QStackedLayout,
-    QWidget,
-    QGraphicsOpacityEffect
+    QFrame, QHBoxLayout, QLabel, QCheckBox, QPushButton, QVBoxLayout,
+    QLineEdit, QScrollArea, QStackedLayout, QWidget, QGraphicsOpacityEffect
 )
 from themes import applyTaskTheme
 
 
-class SubTask(QFrame):
-    def __init__(self, name: str, parentTask):
-        super().__init__()
-        self.setObjectName("SubTask")
-        self.setStyleSheet(applyTaskTheme())
-        self.name = name
-        self.parentTask = parentTask
-
-        layout = QHBoxLayout(self)
-        self.checkbox = QCheckBox()
-        self.label = QLabel(name)
-        self.deleteBtn = QPushButton("")
-        self.deleteBtn.setIcon(QIcon("ressources\\icons\\delete.png"))
-
-        layout.addWidget(self.checkbox)
-        layout.addWidget(self.label)
-        layout.addStretch()
-        layout.addWidget(self.deleteBtn)
-
-        self.deleteBtn.clicked.connect(self.deleteSelf)
-
-    def deleteSelf(self):
-        self.setParent(None)
-        self.deleteLater()
-        self.parentTask.removeSubtask(self)
-
-    def toDict(self):
-        return {"name": self.name, "done": self.checkbox.isChecked()}
-
-
-
 class Task(QFrame):
+    """
+    Represents a task item with optional subtasks.
+    Supports renaming, subtask management, and visual status sync.
+    """
+
     def __init__(self, name: str, parentList):
         super().__init__()
         self.name = name
         self.parentList = parentList
-        self.subtasks : list[SubTask] = []
+        self.subtasks: list[SubTask] = []
+        self.isExpanded = False
+
         self.setObjectName("Task")
         self.setStyleSheet(applyTaskTheme())
-        main_layout = QVBoxLayout(self)
 
-        # Header: checkbox + name + delete + add sub-task
+        mainLayout = QVBoxLayout(self)
+        mainLayout.setContentsMargins(10, 8, 10, 8)
+
+        # --- Header section ---
         header = QHBoxLayout()
         self.checkbox = QCheckBox()
         self.label = QLabel(name)
-
-        self.labelEdit = QLineEdit(self.name)
+        self.labelEdit = QLineEdit(name)
         self.labelEdit.hide()
-        self.labelEdit.setStyleSheet("background-color: transparent; color: white; border: none;")
 
-        self.renameBtn = QPushButton("")
+        self.renameBtn = QPushButton()
         self.renameBtn.setIcon(QIcon("ressources/icons/edit.png"))
         self.renameBtn.setToolTip("Rename task")
-        self.renameBtn.setObjectName("RenameBtn")
-        self.renameBtn.clicked.connect(self.showRenameInput)
-        self.labelEdit.returnPressed.connect(self.commitRename)
 
-        header.addWidget(self.renameBtn)
-
-
-        self.addBtn = QPushButton("")
-        self.addBtn.setIcon(QIcon("ressources\\icons\\new.png"))
+        self.addBtn = QPushButton()
+        self.addBtn.setIcon(QIcon("ressources/icons/new.png"))
         self.addBtn.setToolTip("Add sub-task")
 
-        self.deleteBtn = QPushButton("")
-        self.deleteBtn.setIcon(QIcon("ressources\\icons\\delete.png"))
-        self.deleteBtn.setToolTip("Delete")
+        self.deleteBtn = QPushButton()
         self.deleteBtn.setObjectName("DeleteBtn")
+        self.deleteBtn.setIcon(QIcon("ressources/icons/delete.png"))
+        self.deleteBtn.setToolTip("Delete task")
 
-        header.addWidget(self.checkbox)
+        self.dropdownBtn = QPushButton()
+        self.dropdownBtn.setIcon(QIcon("ressources/icons/down.png"))
+        self.dropdownBtn.setToolTip("Show/Hide subtasks")
 
         self.labelContainer = QWidget()
-        labelLayout = QStackedLayout(self.labelContainer)
-        labelLayout.setStackingMode(QStackedLayout.StackAll)
-        labelLayout.addWidget(self.label)
-        labelLayout.addWidget(self.labelEdit)
-        header.addWidget(self.labelContainer)
+        labelStack = QStackedLayout(self.labelContainer)
+        labelStack.setStackingMode(QStackedLayout.StackAll)
+        labelStack.addWidget(self.label)
+        labelStack.addWidget(self.labelEdit)
 
+        header.addWidget(self.dropdownBtn)
+        header.addWidget(self.checkbox)
+        header.addWidget(self.labelContainer)
+        header.addStretch()
+        header.addWidget(self.renameBtn)
         header.addWidget(self.addBtn)
         header.addWidget(self.deleteBtn)
-        main_layout.addLayout(header)
 
+        mainLayout.addLayout(header)
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        subtask_container = QWidget()
-        self.subtask_layout = QVBoxLayout(subtask_container)
-        self.subtask_layout.setContentsMargins(8, 8, 8, 8)
-        scroll.setWidget(subtask_container)
+        # --- Subtask container with scroll ---
+        self.scrollBar = QScrollArea()
+        self.scrollBar.setWidgetResizable(True)
+        self.scrollBar.setMinimumHeight(10)
+        self.scrollBar.setMaximumHeight(0)
 
-        main_layout.addWidget(scroll)
+        self.subtaskContainer = QWidget()
+        self.subtaskLayout = QVBoxLayout(self.subtaskContainer)
+        self.subtaskLayout.setContentsMargins(54, 4, 8, 4)  # Indentation for sub-tasks
+        self.scrollBar.setWidget(self.subtaskContainer)
 
+        mainLayout.addWidget(self.scrollBar)
+
+        # --- Connections ---
         self.addBtn.clicked.connect(self.addSubtask)
         self.deleteBtn.clicked.connect(self.deleteSelf)
+        self.renameBtn.clicked.connect(self.showRenameInput)
+        self.labelEdit.returnPressed.connect(self.commitRename)
         self.checkbox.stateChanged.connect(self.toggleSubtasks)
+        self.dropdownBtn.clicked.connect(self.toggleSubtaskVisibility)
+
+        # Initial state
+        self.scrollBar.setVisible(False)
+        self.addBtn.setVisible(False)
+        self.renameBtn.setVisible(False)
+        self.deleteBtn.setVisible(False)
 
     def addSubtask(self):
+        """
+        Add a subtask (as a SubTask).
+        """
         sub = SubTask("Subtask", self)
-        self.subtask_layout.addWidget(sub)
-        self.subtasks.append(sub)
-        sub.checkbox.stateChanged.connect(self.syncWithSubtasks)
+        self.subtaskLayout.addWidget(sub)
         self.syncWithSubtasks()
+        if len(self.subtasks) == 0:
+            self.toggleSubtaskVisibility()
+        self.subtasks.append(sub)
 
+    def animateButtonHide(self, btn : QPushButton) -> None:
+        effect = QGraphicsOpacityEffect(btn)
+        btn.setGraphicsEffect(effect)
+        anim = QPropertyAnimation(effect, b"opacity")
+        anim.setDuration(300)
+        anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        anim.setStartValue(1.0)
+        anim.setEndValue(0.0)
+        anim.start()
+        btn.anim = anim
+
+    def animateButtonShow(self, btn : QPushButton) -> None:
+        effect = QGraphicsOpacityEffect(btn)
+        btn.setGraphicsEffect(effect)
+        anim = QPropertyAnimation(effect, b"opacity")
+        anim.setDuration(300)
+        anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        anim.setStartValue(0.0)
+        anim.setEndValue(1.0)
+        anim.start()
+        btn.anim = anim
 
     def animateLabel(self):
+        """
+        Fade animation when a label is updated.
+        """
         effect = QGraphicsOpacityEffect(self.label)
         self.label.setGraphicsEffect(effect)
 
@@ -134,38 +144,33 @@ class Task(QFrame):
         anim.start()
         self.label.anim = anim
 
-    def removeSubtask(self, sub):
-        if sub in self.subtasks:
-            self.subtasks.remove(sub)
-
-    def deleteSelf(self):
-        self.setParent(None)
-        self.deleteLater()
-        self.parentList.removeTask(self)
-
-    def syncWithSubtasks(self):
-        if not self.subtasks:
-            return
-
-        # If all subtasks are checked, check the task
-        if all(sub.checkbox.isChecked() for sub in self.subtasks):
-            self.checkbox.blockSignals(True)
-            self.checkbox.setChecked(True)
-            self.checkbox.blockSignals(False)
+    def animateSubtasks(self, expand: bool):
+        """
+        Animate opening or closing the subtask container.
+        """
+        anim = QPropertyAnimation(self.scrollBar, b"maximumHeight")
+        anim.setDuration(300)
+        if expand:
+            self.scrollBar.setMaximumHeight(0)
+            self.scrollBar.setVisible(True)
+            height = self.subtaskContainer.sizeHint().height() + 20
+            anim.setStartValue(0)
+            anim.setEndValue(height)
+            self.dropdownBtn.setIcon(QIcon("ressources/icons/top.png"))
         else:
-            self.checkbox.blockSignals(True)
-            self.checkbox.setChecked(False)
-            self.checkbox.blockSignals(False)
+            height = self.scrollBar.height()
+            self.scrollBar.setVisible(False)
+            anim.setStartValue(height)
+            anim.setEndValue(0)
+            self.dropdownBtn.setIcon(QIcon("ressources/icons/down.png"))
 
-        self.parentList.updateProgress()
-
-    def showRenameInput(self):
-        self.labelEdit.setText(self.label.text())
-        self.label.hide()
-        self.labelEdit.show()
-        self.labelEdit.setFocus()
+        anim.start()
+        self.scrollBar.anim = anim  # keep ref to prevent GC
 
     def commitRename(self):
+        """
+        Commit a renaming change.
+        """
         new_name = self.labelEdit.text().strip()
         if new_name:
             self.name = new_name
@@ -174,17 +179,135 @@ class Task(QFrame):
             self.label.show()
             self.animateLabel()
 
+    def deleteSelf(self):
+        """
+        Delete this task.
+        """
+        self.setParent(None)
+        self.deleteLater()
+        self.parentList.removeTask(self)
+
+    def enterEvent(self, event):
+        """
+        When mouse enters, show buttons and auto-expand subtasks.
+        """
+        super().enterEvent(event)
+        for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
+            self.animateButtonShow(btn)
+
+    def leaveEvent(self, event):
+        """
+        When mouse leaves, hide buttons.
+        """
+        super().leaveEvent(event)
+        for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
+            self.animateButtonHide(btn)
+
+    def removeSubtask(self, sub):
+        """
+        Remove a specific subtask.
+        """
+        if sub in self.subtasks:
+            self.subtasks.remove(sub)
+            self.syncWithSubtasks()
+
+    def showRenameInput(self):
+        """
+        Show inline rename field.
+        """
+        self.labelEdit.setText(self.label.text())
+        self.label.hide()
+        self.labelEdit.show()
+        self.labelEdit.setFocus()
+
+    def syncWithSubtasks(self):
+        """
+        Update the main task checkbox according to subtasks.
+        """
+        if not self.subtasks:
+            return
+        done = all(sub.checkbox.isChecked() for sub in self.subtasks)
+        self.checkbox.blockSignals(True)
+        self.checkbox.setChecked(done)
+        self.checkbox.blockSignals(False)
+        try:
+            self.parentList.updateProgress()
+        except:
+            return
+
+    def toggleSubtaskVisibility(self):
+        """
+        Expand/collapse subtasks
+        """
+        expand = not self.isExpanded
+        self.isExpanded = expand
+        self.animateSubtasks(expand)
+
+    def toggleSubtasks(self, state):
+        """
+        Mark all subtasks done/undone based on main checkbox.
+        """
+        for sub in self.subtasks:
+            sub.checkbox.blockSignals(True)
+            sub.checkbox.setChecked(bool(state))
+            sub.checkbox.blockSignals(False)
+        try:
+            self.parentList.updateProgress()
+        except:
+            return None
 
     def toDict(self):
+        """
+        Serialize the task to a dictionary.
+        """
         return {
             "name": self.name,
             "done": self.checkbox.isChecked(),
             "subtasks": [s.toDict() for s in self.subtasks]
         }
 
-    def toggleSubtasks(self, state):
-        for sub in self.subtasks:
-            sub.checkbox.blockSignals(True)
-            sub.checkbox.setChecked(bool(state))
-            sub.checkbox.blockSignals(False)
-        self.parentList.updateProgress()
+
+class SubTask(Task):
+    """
+    A lightweight task to be embedded inside another task.
+    """
+
+    def __init__(self, name: str, parentTask):
+        super().__init__(name, parentTask)
+        self.setObjectName("SubTask")
+        self.parentTask = parentTask
+
+        # Hide dropdown and add subtask for subtasks
+        self.addBtn.hide()
+        self.renameBtn.hide()
+        self.dropdownBtn.hide()
+
+        # Hide subtasks container
+        self.scrollBar.setVisible(False)
+
+        self.checkbox.stateChanged.connect(self.parentTask.syncWithSubtasks)
+
+        self.deleteBtn.clicked.disconnect()
+        self.deleteBtn.clicked.connect(self.deleteSelf)
+
+    def deleteSelf(self):
+        """
+        Delete this subtask.
+        """
+        self.setParent(None)
+        self.deleteLater()
+        self.parentTask.removeSubtask(self)
+
+    def enterEvent(self, event):
+        """
+        When mouse enters, show buttons and auto-expand subtasks.
+        """
+        self.renameBtn.setVisible(True)
+        self.deleteBtn.setVisible(True)
+
+    def leaveEvent(self, event):
+        """
+        When mouse leaves, hide buttons.
+        """
+        self.renameBtn.setVisible(False)
+        self.deleteBtn.setVisible(False)
