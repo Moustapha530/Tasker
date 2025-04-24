@@ -20,7 +20,7 @@ from qt_material import apply_stylesheet
 
 # Local imports
 from customWidgets import CustomTitleBar, SideBar
-from tasksList import TaskList
+from tasksList import TaskList, TaskListExplorer
 from themes import applyTheme
 
 class Tasker(QMainWindow):
@@ -58,6 +58,7 @@ class Tasker(QMainWindow):
         self.sideBar = SideBar(self)
         self.sideBar.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
         self.sideBar.buttons.get("Add task list").clicked.connect(self.addTaskList)
+        self.sideBar.buttons.get("Show task lists").clicked.connect(self.showTaskListExplorer)
         contentLayout.addWidget(self.sideBar)
 
         # Tabs (main content)
@@ -117,3 +118,7 @@ class Tasker(QMainWindow):
         """Start the application event loop."""
         self.show()
         self.qtApplication.exec_()
+
+    def showTaskListExplorer(self) -> None:
+        explorer = TaskListExplorer(self)
+        self.tabs.addTab(explorer, "Explorer")
