@@ -17,7 +17,7 @@ class Task(QFrame):
     Supports renaming, subtask management, and visual status sync.
     """
 
-    def __init__(self, name: str, parentList):
+    def __init__(self, name: str, parentList) -> None:
         super().__init__()
         self.name = name
         self.parentList = parentList
@@ -97,7 +97,7 @@ class Task(QFrame):
         self.renameBtn.setVisible(False)
         self.deleteBtn.setVisible(False)
 
-    def addSubtask(self):
+    def addSubtask(self) -> None:
         """
         Add a subtask (as a SubTask).
         """
@@ -108,7 +108,7 @@ class Task(QFrame):
             self.toggleSubtaskVisibility()
         self.subtasks.append(sub)
 
-    def animateButtonFade(self, button: QPushButton, fade_in: bool):
+    def animateButtonFade(self, button: QPushButton, fade_in: bool) -> None:
         """Animate the opacity of a button."""
         if not button.graphicsEffect():
             effect = QGraphicsOpacityEffect(button)
@@ -117,14 +117,14 @@ class Task(QFrame):
             effect = button.graphicsEffect()
 
         anim = QPropertyAnimation(effect, b"opacity")
-        anim.setDuration(250)
+        anim.setDuration(900)
         anim.setStartValue(effect.opacity())
         anim.setEndValue(1.0 if fade_in else 0.0)
         anim.start()
         button.anim = anim  # Keep reference
         button.setVisible(True if fade_in else False)
 
-    def animateLabel(self):
+    def animateLabel(self) -> None:
         """
         Fade animation when a label is updated.
         """
@@ -132,18 +132,18 @@ class Task(QFrame):
         self.label.setGraphicsEffect(effect)
 
         anim = QPropertyAnimation(effect, b"opacity")
-        anim.setDuration(300)
+        anim.setDuration(500)
         anim.setStartValue(0.0)
         anim.setEndValue(1.0)
         anim.start()
         self.label.anim = anim
 
-    def animateSubtasks(self, expand: bool):
+    def animateSubtasks(self, expand: bool) -> None:
         """
         Animate opening or closing the subtask container.
         """
         anim = QPropertyAnimation(self.scrollBar, b"maximumHeight")
-        anim.setDuration(300)
+        anim.setDuration(500)
         if expand:
             self.scrollBar.setMaximumHeight(0)
             self.scrollBar.setVisible(True)
@@ -161,7 +161,7 @@ class Task(QFrame):
         anim.start()
         self.scrollBar.anim = anim  # keep ref to prevent GC
 
-    def commitRename(self):
+    def commitRename(self) -> None:
         """
         Commit a renaming change.
         """
@@ -173,7 +173,7 @@ class Task(QFrame):
             self.label.show()
             self.animateLabel()
 
-    def deleteSelf(self):
+    def deleteSelf(self) -> None:
         """
         Delete this task.
         """
@@ -181,21 +181,21 @@ class Task(QFrame):
         self.deleteLater()
         self.parentList.removeTask(self)
 
-    def enterEvent(self, event):
+    def enterEvent(self, event) -> None:
         """Hover enter: animate fade-in of buttons."""
         super().enterEvent(event)
         for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
             self.animateButtonFade(btn, fade_in=True)
         if not self.isExpanded and self.subtasks:
-            self.toggleSubtaskVisibility(force_expand=True)
+            self.toggleSubtaskVisibility()
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, event) -> None:
         """Hover leave: animate fade-out of buttons."""
         super().leaveEvent(event)
         for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
             self.animateButtonFade(btn, fade_in=False)
 
-    def removeSubtask(self, sub):
+    def removeSubtask(self, sub) -> None:
         """
         Remove a specific subtask.
         """
@@ -203,7 +203,7 @@ class Task(QFrame):
             self.subtasks.remove(sub)
             self.syncWithSubtasks()
 
-    def showRenameInput(self):
+    def showRenameInput(self) -> None:
         """
         Show inline rename field.
         """
@@ -212,7 +212,7 @@ class Task(QFrame):
         self.labelEdit.show()
         self.labelEdit.setFocus()
 
-    def syncWithSubtasks(self):
+    def syncWithSubtasks(self) -> None:
         """
         Update the main task checkbox according to subtasks.
         """
@@ -226,8 +226,18 @@ class Task(QFrame):
             self.parentList.updateProgress()
         except:
             return
+    
+    def toDict(self) -> dict:
+        """
+        Serialize the task to a dictionary.
+        """
+        return {
+            "name": self.name,
+            "done": self.checkbox.isChecked(),
+            "subtasks": [s.toDict() for s in self.subtasks]
+        }
 
-    def toggleSubtaskVisibility(self):
+    def toggleSubtaskVisibility(self) -> None:
         """
         Expand/collapse subtasks
         """
@@ -235,7 +245,7 @@ class Task(QFrame):
         self.isExpanded = expand
         self.animateSubtasks(expand)
 
-    def toggleSubtasks(self, state):
+    def toggleSubtasks(self, state) -> None:
         """
         Mark all subtasks done/undone based on main checkbox.
         """
@@ -248,23 +258,13 @@ class Task(QFrame):
         except:
             return None
 
-    def toDict(self):
-        """
-        Serialize the task to a dictionary.
-        """
-        return {
-            "name": self.name,
-            "done": self.checkbox.isChecked(),
-            "subtasks": [s.toDict() for s in self.subtasks]
-        }
-
 
 class SubTask(Task):
     """
     A lightweight task to be embedded inside another task.
     """
 
-    def __init__(self, name: str, parentTask):
+    def __init__(self, name: str, parentTask) -> None:
         super().__init__(name, parentTask)
         self.setObjectName("SubTask")
         self.parentTask = parentTask
@@ -282,7 +282,7 @@ class SubTask(Task):
         self.deleteBtn.clicked.disconnect()
         self.deleteBtn.clicked.connect(self.deleteSelf)
 
-    def deleteSelf(self):
+    def deleteSelf(self) -> None:
         """
         Delete this subtask.
         """
@@ -290,16 +290,25 @@ class SubTask(Task):
         self.deleteLater()
         self.parentTask.removeSubtask(self)
 
-    def enterEvent(self, event):
+    def enterEvent(self, event) -> None:
         """
         When mouse enters, show buttons and auto-expand subtasks.
         """
-        self.renameBtn.setVisible(True)
-        self.deleteBtn.setVisible(True)
+        for btn in [self.renameBtn, self.deleteBtn]:
+            self.animateButtonFade(btn, fade_in=True)
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, event) -> None:
         """
         When mouse leaves, hide buttons.
         """
-        self.renameBtn.setVisible(False)
-        self.deleteBtn.setVisible(False)
+        for btn in [self.renameBtn, self.deleteBtn]:
+            self.animateButtonFade(btn, fade_in=False)
+
+    def toDict(self) -> dict:
+       """
+       Serialize the task to a dictionary.
+       """
+       return {
+           "name": self.name,
+           "done": self.checkbox.isChecked(),
+       }
