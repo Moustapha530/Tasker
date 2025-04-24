@@ -154,7 +154,6 @@ class Task(QFrame):
             self.dropdownBtn.setIcon(QIcon("ressources/icons/top.png"))
         else:
             height = self.scrollBar.height()
-            self.scrollBar.setVisible(False)
             anim.setStartValue(height)
             anim.setEndValue(0)
             self.dropdownBtn.setIcon(QIcon("ressources/icons/down.png"))
@@ -203,6 +202,8 @@ class Task(QFrame):
         if sub in self.subtasks:
             self.subtasks.remove(sub)
             self.syncWithSubtasks()
+        if len(self.subtasks) == 0:
+            self.scrollBar.setVisible(False)
 
     def showRenameInput(self) -> None:
         """
