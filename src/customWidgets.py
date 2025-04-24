@@ -234,24 +234,24 @@ class SideBar(QFrame):
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         buttons = {
-            "Close side bar": "ressources\\icons\\left.png",
-            "Show task lists": "ressources\\icons\\tasklists.png",
-            "Add task list": "ressources\\icons\\new_tasklist.png",
-            "Open task list": "ressources\\icons\\edit.png",
-            "Settings": "ressources\\icons\\settings.png",
+            "Close side bar": ["ressources\\icons\\left.png", "ctrl+shift+t"],
+            "Show task lists": ["ressources\\icons\\tasklists.png", "ctrl+shift+e"],
+            "Add task list": ["ressources\\icons\\new_tasklist.png", "ctrl+shift+n"],
+            "Open task list": ["ressources\\icons\\edit.png", "ctrl+shift+o"],
+            "Settings": ["ressources\\icons\\settings.png", "ctrl+shift+s"],
         }
         self.buttons : dict[str, QPushButton] = dict()
 
-        for name, icon_path in buttons.items():
+        for name, value in buttons.items():
             btn = QPushButton("", self)
-            btn.setIcon(QIcon(icon_path))
+            btn.setIcon(QIcon(value[0]))
             btn.setFixedSize(50, 50)
-            btn.setToolTip(f"{name}")
+            btn.setShortcut(value[1])
+            btn.setToolTip(f"{name} ({btn.shortcut().toString()})")
 
             if name == "Close side bar":
                 btn.clicked.connect(self.toggleSidebar)
-                btn.setShortcut("ctrl+t")
-                btn.setToolTip(f"{name} ({btn.shortcut().toString()})")
+                
 
             self.layout.addWidget(btn)
             self.buttons[name] = btn
