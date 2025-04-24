@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QMenu,
 )
+from filesManager import listTaskListFiles
 from task import SubTask, Task
 from themes import applyTaskTheme
 
@@ -66,21 +67,18 @@ class TaskList(QWidget):
         self.tasks.append(task)
         self.updateProgress()
 
-    
-
-# Inside TaskListWidget class
-    def load_from_file(self, name: str):
+    def loadFromFile(self, name: str):
         """
         Load a task list from a JSON file and reconstruct the task list.
 
         Args:
-            f"data\\taskList\\{name}" (str): Path to the JSON file.
+            name (str): Path to the JSON file.
         """
         if not os.path.exists(f"data\\taskList\\{name}"):
             print(f"File \"data\\taskList\\{name}\" does not exist.")
             return
 
-        with open(f"data\\taskList\\{name}", "r") as f:
+        with open(f"data\\taskLists\\{name}", "r") as f:
             try:
                 data = json.load(f)
             except json.JSONDecodeError as e:
@@ -128,6 +126,7 @@ class TaskList(QWidget):
         done_count = sum(1 for t in self.tasks if t.checkbox.isChecked())
         percent = int((done_count / len(self.tasks)) * 100)
         self.progress.setValue(percent)
+        self.saveToFile()
 
     def saveToFile(self):
         data = {
@@ -151,7 +150,7 @@ class TaskListPreview(QWidget):
         layout.setContentsMargins(10, 5, 10, 5)
 
         icon = QLabel()
-        icon.setPixmap(QIcon("ressources/icons/folder.png").pixmap(24, 24))
+        icon.setPixmap(QIcon("ressources\\icons\\checkList.png").pixmap(24, 24))
 
         self.label = QLabel(name)
         self.optionsBtn = QPushButton("⋯")
@@ -202,6 +201,7 @@ class TaskListExplorer(QWidget):
         self.scrollArea.setWidget(self.container)
 
         layout.addWidget(self.scrollArea)
+        self.showTaskLists()
 
     def addTaskListPreview(self, name: str):
         preview = TaskListPreview(name)
@@ -212,8 +212,11 @@ class TaskListExplorer(QWidget):
         self.listLayout.addWidget(preview)
 
     def openList(self, name: str):
-        print(f"Open task list: {name}")
-        # Appelle ici ton code pour ouvrir la liste dans un onglet
+        try:
+            taskList = TaskList("Untitled task list")
+            taskList.loadFromFile(name)
+        except:
+            pass
 
     def renameList(self, old_name: str):
         new_name, ok = QInputDialog.getText(self, "Rename Task List", "New name:", text=old_name)
@@ -235,3 +238,9 @@ class TaskListExplorer(QWidget):
                     item.setParent(None)
                     item.deleteLater()
                     break
+
+    def showTaskLists(self) -> None:
+        for file in listTaskListFiles():
+            taskList = TaskList("Untitled task list")
+            taskList.loadFromFile(file)
+            self.addTaskListPreview(taskList)
