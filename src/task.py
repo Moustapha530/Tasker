@@ -108,27 +108,21 @@ class Task(QFrame):
             self.toggleSubtaskVisibility()
         self.subtasks.append(sub)
 
-    def animateButtonHide(self, btn : QPushButton) -> None:
-        effect = QGraphicsOpacityEffect(btn)
-        btn.setGraphicsEffect(effect)
-        anim = QPropertyAnimation(effect, b"opacity")
-        anim.setDuration(300)
-        anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        anim.setStartValue(1.0)
-        anim.setEndValue(0.0)
-        anim.start()
-        btn.anim = anim
+    def animateButtonFade(self, button: QPushButton, fade_in: bool):
+        """Animate the opacity of a button."""
+        if not button.graphicsEffect():
+            effect = QGraphicsOpacityEffect(button)
+            button.setGraphicsEffect(effect)
+        else:
+            effect = button.graphicsEffect()
 
-    def animateButtonShow(self, btn : QPushButton) -> None:
-        effect = QGraphicsOpacityEffect(btn)
-        btn.setGraphicsEffect(effect)
         anim = QPropertyAnimation(effect, b"opacity")
-        anim.setDuration(300)
-        anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        anim.setStartValue(0.0)
-        anim.setEndValue(1.0)
+        anim.setDuration(250)
+        anim.setStartValue(effect.opacity())
+        anim.setEndValue(1.0 if fade_in else 0.0)
         anim.start()
-        btn.anim = anim
+        button.anim = anim  # Keep reference
+        button.setVisible(True if fade_in else False)
 
     def animateLabel(self):
         """
@@ -188,20 +182,18 @@ class Task(QFrame):
         self.parentList.removeTask(self)
 
     def enterEvent(self, event):
-        """
-        When mouse enters, show buttons and auto-expand subtasks.
-        """
+        """Hover enter: animate fade-in of buttons."""
         super().enterEvent(event)
         for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
-            self.animateButtonShow(btn)
+            self.animateButtonFade(btn, fade_in=True)
+        if not self.isExpanded and self.subtasks:
+            self.toggleSubtaskVisibility(force_expand=True)
 
     def leaveEvent(self, event):
-        """
-        When mouse leaves, hide buttons.
-        """
+        """Hover leave: animate fade-out of buttons."""
         super().leaveEvent(event)
         for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
-            self.animateButtonHide(btn)
+            self.animateButtonFade(btn, fade_in=False)
 
     def removeSubtask(self, sub):
         """
