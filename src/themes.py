@@ -23,7 +23,7 @@ def applyTheme() -> str:
         border-radius: 5px;
     }}
 
-    QProgressBar{{
+    QProgressBar, QProgressBar::chunk{{
         color: {theme['primaryColor']};
         border-radius: 10px;
     }}
