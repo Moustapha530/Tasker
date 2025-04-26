@@ -1,2 +1,4 @@
 # Ignore pycache
 src/__pycache__/
+# Ignore taskList folder
+data/taskLists/
