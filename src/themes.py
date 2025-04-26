@@ -86,12 +86,13 @@ def applyCTheme() -> str:
     return f"""
     #CTitleBar{{
         background-color: {theme['secondaryColor']};
-        border-radius: 15px;
+        border-radius: 0px;
+        border-bottom-right-radius: 15px;
+        border-top-right-radius: 15px;
     }}
 
     #CTitleBar QFrame{{
         background-color: {theme['secondaryColor']};
-        border-radius: 15px;
     }}
 
     #CloseBtn:hover{{
@@ -100,7 +101,9 @@ def applyCTheme() -> str:
 
     #CSideBar{{
         background-color: {theme['secondaryColor']};
-        border-radius: 15px;
+        border-radius: 0px;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
     }}
     """
 
