@@ -237,7 +237,6 @@ class SideBar(QFrame):
             "Close side bar": ["ressources\\icons\\left.png", "ctrl+shift+t"],
             "Show task lists": ["ressources\\icons\\tasklists.png", "ctrl+shift+e"],
             "Add task list": ["ressources\\icons\\new_tasklist.png", "ctrl+shift+n"],
-            "Open task list": ["ressources\\icons\\edit.png", "ctrl+shift+o"],
             "Settings": ["ressources\\icons\\settings.png", "ctrl+shift+s"],
         }
         self.buttons : dict[str, QPushButton] = dict()
