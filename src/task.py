@@ -2,7 +2,7 @@
     Task module: contains Task and SubTask classes used in Tasker app.
 """
 
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt
+from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QCheckBox, QPushButton, QVBoxLayout,
@@ -186,8 +186,6 @@ class Task(QFrame):
         super().enterEvent(event)
         for btn in [self.addBtn, self.renameBtn, self.deleteBtn]:
             self.animateButtonFade(btn, fade_in=True)
-        if not self.isExpanded and self.subtasks:
-            self.toggleSubtaskVisibility()
 
     def leaveEvent(self, event) -> None:
         """Hover leave: animate fade-out of buttons."""
