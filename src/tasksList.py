@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QWidget, 
     QVBoxLayout, 
     QHBoxLayout, 
+    QGridLayout,
     QLabel, 
     QScrollArea,
     QPushButton, 
@@ -17,7 +18,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QMenu,
 )
-from filesManager import listTaskListFiles
+from filesManager import listTaskListName
 from task import SubTask, Task
 from themes import applyTaskTheme
 
@@ -187,7 +188,8 @@ class TaskListExplorer(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("TaskListExplorer")
-
+        self.maxCol = 10
+        self.currentIndex = 0
         layout = QVBoxLayout(self)
         title = QLabel("Task Lists")
         title.setStyleSheet("font-weight: bold; font-size: 16px;")
@@ -197,7 +199,7 @@ class TaskListExplorer(QWidget):
         self.scrollArea.setWidgetResizable(True)
 
         self.container = QWidget()
-        self.listLayout = QVBoxLayout(self.container)
+        self.listLayout = QGridLayout(self.container)
         self.scrollArea.setWidget(self.container)
 
         layout.addWidget(self.scrollArea)
@@ -208,8 +210,10 @@ class TaskListExplorer(QWidget):
         preview.openRequested.connect(self.openList)
         preview.renameRequested.connect(self.renameList)
         preview.deleteRequested.connect(self.removeList)
-
-        self.listLayout.addWidget(preview)
+        row = self.currentIndex // self.maxCol
+        col = self.currentIndex % self.maxCol
+        self.listLayout.addWidget(preview, row, col)
+        self.currentIndex += 1
 
     def openList(self, name: str):
         try:
@@ -240,7 +244,5 @@ class TaskListExplorer(QWidget):
                     break
 
     def showTaskLists(self) -> None:
-        for file in listTaskListFiles():
-            taskList = TaskList("Untitled task list")
-            taskList.loadFromFile(file)
-            self.addTaskListPreview(taskList)
+        for file in listTaskListName():
+            self.addTaskListPreview(file)
