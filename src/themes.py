@@ -49,7 +49,6 @@ def applyTheme() -> str:
 
     QTabBar::tab {{
         background-color: {theme['secondaryColor']};
-        border-radius: 10px;
         color: {theme['primaryTextColor']};
         padding: 8px 16px;
         margin: 0px;
@@ -59,15 +58,12 @@ def applyTheme() -> str:
     QTabBar::tab:selected {{
         color: {theme['primaryLightColor']};
         border: none;
-        border-top: 3px solid {theme['primaryColor']}; /* Line at top like VSCode */
-        border-radius: 0px;
-        border-bottom-left-radius: 10px;
-        border-bottom-right-radius: 10px;
+        border-top: 3px solid {theme['primaryColor']};
         background-color: transparent;
     }}
 
     QTabBar::tab:hover {{
-        background-color: {theme['secondaryLightColor']}; /* Light hover effect */
+        background-color: {theme['secondaryLightColor']}; 
         border: none;
     }}
 
@@ -78,6 +74,19 @@ def applyTheme() -> str:
 
     QTabBar::close-button:hover {{
         background-color: red;
+    }}
+
+    #OnlyTab {{
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+    }}
+
+    #ConerLeftTab {{
+        border-bottom-left-radius: 15px;
+    }}
+
+    #ConerRightTab {{
+        border-bottom-right-radius: 15px;
     }}
     """
 

@@ -30,7 +30,7 @@ class TaskList(QWidget):
         self.setObjectName("TaskList")
         self.setStyleSheet(applyTaskTheme())
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        layout.setAlignment()
 
         # Header with name and progress bar 
         top = QHBoxLayout()
@@ -147,23 +147,27 @@ class TaskListPreview(QWidget):
         self.name = name
         self.setObjectName("TaskListPreview")
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 5, 10, 5)
+        mainLayout = QVBoxLayout(self)
+        mainLayout.setContentsMargins(10, 5, 10, 5)
 
         icon = QLabel()
-        icon.setPixmap(QIcon("ressources\\icons\\checkList.png").pixmap(24, 24))
+        icon.setPixmap(QIcon("ressources\\icons\\checkList.png").pixmap(32, 32))
 
         self.label = QLabel(name)
-        self.optionsBtn = QPushButton("⋯")
+        self.optionsBtn = QPushButton("")
+        self.optionsBtn.setIcon(QIcon("ressources\\icons\\tree_points.png"))
         self.optionsBtn.setFixedWidth(30)
         self.optionsBtn.setVisible(False)
 
-        layout.addWidget(icon)
-        layout.addWidget(self.label)
-        layout.addStretch()
-        layout.addWidget(self.optionsBtn)
+        mainLayout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignHCenter)
+        bottomLayout = QHBoxLayout()
+        bottomLayout.addWidget(self.label, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
+        bottomLayout.addWidget(self.optionsBtn, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
+        
+        mainLayout.addLayout(bottomLayout)
 
         self.optionsBtn.clicked.connect(self.showOptions)
+        self.setFixedSize(125, 95)
 
     def showOptions(self):
         menu = QMenu(self)
@@ -194,7 +198,7 @@ class TaskListExplorer(QWidget):
         title = QLabel("Task Lists")
         title.setStyleSheet("font-weight: bold; font-size: 16px;")
         layout.addWidget(title)
-
+        layout.setSpacing(0)
         self.scrollArea = QScrollArea()
         self.scrollArea.setWidgetResizable(True)
 
