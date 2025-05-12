@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QPushButton, 
     QSizePolicy,
     QVBoxLayout,
+    QWidget
 )
 # Locals importations
 from themes import applyCTheme
@@ -83,8 +84,6 @@ class AppLogo(QFrame):
             event (QMouseEvent): The mouse release event.
         """
         self._old_pos = None  # Reset the stored position
-
-
 
 class CustomTitleBar(QFrame):
     """ 
@@ -164,58 +163,6 @@ class CustomTitleBar(QFrame):
             self.toogleMaximizeBtn.setIcon(self.resizeIcon)
             self.window().showMaximized()
 
-class TaskListDialog(QDialog):
-    """
-    A modern dialog box for creating a new task list.
-
-    Attributes:
-        taskNameInput (QLineEdit): Input field for the task list name.
-        confirmButton (QPushButton): Button to confirm task list creation.
-        cancelButton (QPushButton): Button to cancel the dialog.
-    """
-
-    def __init__(self, parent=None):
-        """
-        Initialize the task list dialog.
-
-        Args:
-            parent (QWidget, optional): The parent widget.
-        """
-        super().__init__(parent)
-        self.setWindowTitle("New Task List")
-        self.setFixedSize(400, 200)
-
-
-        # Layout
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        # Title Label
-        titleLabel = QLabel("Create a New Task List")
-        titleLabel.setFont(QFont("Arial", 14, QFont.Weight.Bold))
-        layout.addWidget(titleLabel, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # Task Name Input
-        self.taskNameInput = QLineEdit()
-        self.taskNameInput.returnPressed.connect(self.accept)
-        self.taskNameInput.setPlaceholderText("Enter task list name...")
-        layout.addWidget(self.taskNameInput)
-
-        # Buttons Layout
-        buttonLayout = QHBoxLayout()
-
-        # Cancel Button
-        self.cancelButton = QPushButton("Cancel")
-        self.cancelButton.clicked.connect(self.reject)  # Close dialog on cancel
-        buttonLayout.addWidget(self.cancelButton)
-
-        # Confirm Button
-        self.confirmButton = QPushButton("Create")
-        self.confirmButton.clicked.connect(self.accept)  # Confirm action
-        buttonLayout.addWidget(self.confirmButton)
-
-        layout.addLayout(buttonLayout)
-
 class SideBar(QFrame):
     """
     Sidebar widget with navigation buttons and sliding animation.
@@ -259,18 +206,6 @@ class SideBar(QFrame):
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(300)  # 300ms animation speed
 
-    def showTaskListDialog(self) -> str:
-        """
-        Display the 'New Task List' dialog.
-        """
-        dialog = TaskListDialog(self)
-        if dialog.exec_():  # If 'Create' is clicked
-            task_name = dialog.taskNameInput.text().strip()
-            if task_name:
-                return task_name
-            else:
-                return "Untitled task list"
-
     def toggleSidebar(self) -> None:
         """
         Slide the sidebar in or out using width animation (layout-friendly).
@@ -282,3 +217,16 @@ class SideBar(QFrame):
         self.animation.setEndValue(target_width)
         self.animation.start()
 
+class SectionTitle(QWidget):
+    def __init__(self, text: str):
+        super().__init__()
+        layout = QVBoxLayout(self)
+        self.setObjectName("SectionTitle")
+        self.setStyleSheet(applyCTheme())
+        label = QLabel(text.upper())
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFixedSize(90, 8)
+        line.setObjectName("line")
+        layout.addWidget(label)
+        layout.addWidget(line)
