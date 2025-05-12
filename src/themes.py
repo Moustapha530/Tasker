@@ -79,19 +79,6 @@ def applyTheme() -> str:
     QTabBar::close-button:hover {{
         background-color: red;
     }}
-
-    #OnlyTab {{
-        border-bottom-left-radius: 15px;
-        border-bottom-right-radius: 15px;
-    }}
-
-    #ConerLeftTab {{
-        border-bottom-left-radius: 15px;
-    }}
-
-    #ConerRightTab {{
-        border-bottom-right-radius: 15px;
-    }}
     """
 
 def applyCTheme() -> str:
@@ -117,6 +104,17 @@ def applyCTheme() -> str:
         border-radius: 0px;
         border-bottom-left-radius: 15px;
         border-bottom-right-radius: 15px;
+    }}
+
+    #SectionTitle QLabel{{
+        background-color: transparent;
+        font-weight: bold; 
+        font-size: 16px;
+    }}
+
+    #SectionTitle #line{{
+        background-color: {theme['primaryColor']};
+        border-radius: 3px;
     }}
     """
 
