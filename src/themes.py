@@ -55,6 +55,10 @@ def applyTheme() -> str:
         min-width: 70px;
     }}
 
+    QTabBar::tab:last {{
+        border-bottom-right-radius: 15px;
+    }}
+
     QTabBar::tab:selected {{
         color: {theme['primaryLightColor']};
         border: none;

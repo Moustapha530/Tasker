@@ -72,8 +72,7 @@ class Tasker(QMainWindow):
         mainLayout.addLayout(contentLayout)
         self.addWelcomeTab()
 
-    def addTaskList(self):
-        name = self.sideBar.showTaskListDialog()
+    def addTaskList(self, name : str):
         # Remove welcome tab if it's the only tab
         if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
             self.tabs.removeTab(0)
@@ -118,6 +117,10 @@ class Tasker(QMainWindow):
         """Start the application event loop."""
         self.show()
         self.qtApplication.exec_()
+
+    def newTaskList(self) -> None:
+        name = self.sideBar.showTaskListDialog()
+        self.addTaskList(name)
 
     def showTaskListExplorer(self) -> None:
         explorer = TaskListExplorer(self)

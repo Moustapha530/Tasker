@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QMenu,
 )
-from filesManager import listTaskListName
+from filesManager import listTaskListName, removeTaskList, renameTaskList
 from task import SubTask, Task
 from themes import applyTaskTheme
 
@@ -221,8 +221,8 @@ class TaskListExplorer(QWidget):
 
     def openList(self, name: str):
         try:
-            taskList = TaskList("Untitled task list")
-            taskList.loadFromFile(name)
+            from main import tasker
+            tasker.addTaskList(name)
         except:
             pass
 
@@ -235,6 +235,7 @@ class TaskListExplorer(QWidget):
                 if item.name == old_name:
                     item.name = new_name
                     item.label.setText(new_name)
+                    renameTaskList(old_name, new_name)
                     break
 
     def removeList(self, name: str):
@@ -245,7 +246,9 @@ class TaskListExplorer(QWidget):
                 if item.name == name:
                     item.setParent(None)
                     item.deleteLater()
+                    removeTaskList(name)
                     break
+
 
     def showTaskLists(self) -> None:
         for file in listTaskListName():
