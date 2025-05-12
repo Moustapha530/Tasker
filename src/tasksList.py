@@ -6,21 +6,22 @@ import os
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QWidget, 
-    QVBoxLayout, 
     QHBoxLayout, 
     QGridLayout,
-    QLabel, 
+    QLabel,
     QScrollArea,
     QPushButton, 
     QProgressBar,
     QInputDialog, 
     QMessageBox,
     QMenu,
+    QVBoxLayout, 
+    QWidget, 
 )
 from filesManager import listTaskListName, removeTaskList, renameTaskList
 from task import SubTask, Task
 from themes import applyTaskTheme
+from customWidgets import SectionTitle
 
 class TaskList(QWidget):
     def __init__(self, name: str):
@@ -30,12 +31,16 @@ class TaskList(QWidget):
         self.setObjectName("TaskList")
         self.setStyleSheet(applyTaskTheme())
         layout = QVBoxLayout(self)
-        layout.setAlignment()
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Header with name and progress bar 
-        top = QHBoxLayout()
-        top.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.nameLabel = QLabel(name)
+        header = QHBoxLayout()
+        header.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        toolsLayout = QHBoxLayout()
+        toolsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.nameLabel = SectionTitle(name)
         self.progress = QProgressBar()
         self.progress.setValue(0)
 
@@ -47,12 +52,13 @@ class TaskList(QWidget):
         self.saveBtn.setToolTip("Save")
 
 
-        top.addWidget(self.nameLabel)
-        top.addWidget(self.progress)
-        top.addWidget(self.addTaskBtn)
-        top.addWidget(self.saveBtn)
+        header.addWidget(self.nameLabel)
+        toolsLayout.addWidget(self.progress)
+        toolsLayout.addWidget(self.addTaskBtn)
+        toolsLayout.addWidget(self.saveBtn)
 
-        layout.addLayout(top)
+        layout.addLayout(header)
+        layout.addLayout(toolsLayout)
 
         # Tasks area
         self.taskLayout = QVBoxLayout()
@@ -94,7 +100,7 @@ class TaskList(QWidget):
 
         # Restore title
         self.name = data.get("name", "Unnamed List")
-        self.nameLabel.setText(self.name)
+        self.nameLabel.label.setText(self.name)
 
         for task_data in data.get("tasks", []):
             task_name = task_data.get("name", "Unnamed Task")
@@ -195,8 +201,7 @@ class TaskListExplorer(QWidget):
         self.maxCol = 10
         self.currentIndex = 0
         layout = QVBoxLayout(self)
-        title = QLabel("Task Lists")
-        title.setStyleSheet("font-weight: bold; font-size: 16px;")
+        title = SectionTitle("Task Lists")
         layout.addWidget(title)
         layout.setSpacing(0)
         self.scrollArea = QScrollArea()
@@ -220,11 +225,8 @@ class TaskListExplorer(QWidget):
         self.currentIndex += 1
 
     def openList(self, name: str):
-        try:
-            from main import tasker
-            tasker.addTaskList(name)
-        except:
-            pass
+        from main import tasker
+        tasker.addTaskList(name)
 
     def renameList(self, old_name: str):
         new_name, ok = QInputDialog.getText(self, "Rename Task List", "New name:", text=old_name)

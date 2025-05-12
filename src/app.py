@@ -72,11 +72,12 @@ class Tasker(QMainWindow):
         mainLayout.addLayout(contentLayout)
         self.addWelcomeTab()
 
-    def addTaskList(self, name : str):
+    def addTaskList(self):
         # Remove welcome tab if it's the only tab
         if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
             self.tabs.removeTab(0)
 
+        name = "Untitled task list"
         task_list = TaskList(name)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
