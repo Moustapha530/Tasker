@@ -1,23 +1,22 @@
 """
     Module that contains customed widgets for the application.
 """
-from PyQt5.QtCore import Qt, QPoint, QPropertyAnimation, QRect
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QMouseEvent
+from PyQt5.QtCore import QEasingCurve, Qt, QPoint, QPropertyAnimation, QRect, QSize
+from PyQt5.QtGui import QColor, QIcon, QMouseEvent, QPainter, QPainterPath, QPen
 from PyQt5.QtWidgets import (
-    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
     QMainWindow,
-    QMessageBox,
     QPushButton, 
     QSizePolicy,
+    QTabBar,
+    QTabWidget, 
     QVBoxLayout,
     QWidget
 )
 # Locals importations
-from themes import applyCTheme
+from themes import get_theme, getCurrentTheme
 
 class AppLogo(QFrame):
     """ 
@@ -85,6 +84,109 @@ class AppLogo(QFrame):
         """
         self._old_pos = None  # Reset the stored position
 
+class CustomTabBar(QTabBar): 
+    
+    def __init__(self): 
+        super().__init__() 
+        self.setDrawBase(False) 
+        self.setElideMode(Qt.TextElideMode.ElideRight) 
+        self.setTabsClosable(True) 
+        self.setMovable(True) 
+        self.theme = get_theme(getCurrentTheme()) 
+        self.setMouseTracking(True)
+
+    def tabSizeHint(self, index: int) -> QSize:
+        return QSize(128, 36)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.drawTabBarBackground(painter)
+
+        for i in range(self.count()):
+            rect = self.tabRect(i)
+            is_selected = (i == self.currentIndex())
+            self.drawTab(painter, rect, i, is_selected)
+
+    def drawTab(self, painter: QPainter, rect: QRect, index: int, is_selected: bool):
+        tab_color = QColor(self.theme['secondaryColor'])
+        border_color = QColor(self.theme['primaryTextColor'])
+        text_color = QColor(self.theme['primaryTextColor'])
+        selected_color = QColor(self.theme['secondaryDarkColor'])
+
+        path = QPainterPath()
+        path.moveTo(rect.left() + 10, rect.bottom())
+        path.lineTo(rect.left() + 4, rect.top() + 12)
+        path.quadTo(rect.left(), rect.top(), rect.left() + 10, rect.top())
+        path.lineTo(rect.right() - 10, rect.top())
+        path.quadTo(rect.right(), rect.top(), rect.right() - 4, rect.top() + 12)
+        path.lineTo(rect.right() - 10, rect.bottom())
+
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(selected_color if is_selected else tab_color)
+        painter.drawPath(path)
+
+        if not is_selected and index < self.count() - 1:
+            sep_x = rect.right() - 1
+            painter.setPen(QPen(border_color, 1))
+            painter.drawLine(sep_x, rect.top() + 10, sep_x, rect.bottom() - 6)
+
+        painter.setPen(QPen(text_color))
+        font = painter.font()
+        font.setBold(is_selected)
+        painter.setFont(font)
+        text = self.tabText(index)
+        painter.drawText(rect.adjusted(12, 6, -12, -6), Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, text)
+
+    def drawTabBarBackground(self, painter: QPainter):
+        bg_rect = QRect(0, 0, self.width(), self.height() + 6)
+        painter.fillRect(bg_rect, QColor(self.theme['secondaryColor']))
+
+class CustomTabWidget(QTabWidget): 
+    
+    def __init__(self, parent = None): 
+        super().__init__(parent) 
+        self.setTabBar(CustomTabBar()) 
+        self.setTabPosition(QTabWidget.TabPosition.North) 
+        self.setObjectName("CTabWidget") 
+        self.setStyleSheet("QTabWidget::pane { border: none; margin-top: -6px; background: none; }") 
+        self.tabCloseRequested.connect(self.closeAnimatedTab)
+
+    def addAnimatedTab(self, new_tab : QWidget | None = None, name : str = "New Tab"):
+        if new_tab is None:
+            new_tab = QWidget()
+            layout = QVBoxLayout(new_tab)
+            layout.setContentsMargins(0, 0, 0, 0)
+            
+        self.addTab(new_tab, name)
+
+        index = self.indexOf(new_tab)
+        self.setCurrentIndex(index)
+
+        tab_rect = self.tabBar().tabRect(index)
+        start_x = self.tabBar().width()
+
+        anim = QPropertyAnimation(self.tabBar(), b"pos")
+        anim.setStartValue(QPoint(start_x, tab_rect.y()))
+        anim.setEndValue(QPoint(0, 0))
+        anim.setDuration(300)
+        anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        anim.start()
+        self._tab_add_anim = anim  # Prevent GC
+
+    def closeAnimatedTab(self, index : int):
+        widget = self.widget(index)
+        if not widget:
+            return
+        anim = QPropertyAnimation(widget, b"maximumWidth")
+        anim.setStartValue(widget.width())
+        anim.setEndValue(0)
+        anim.setDuration(200)
+        anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        anim.finished.connect(lambda: self.removeTab(index))
+        anim.start()
+        self._tab_close_anim = anim    
+
 class CustomTitleBar(QFrame):
     """ 
     Custom title bar for the application.
@@ -112,7 +214,7 @@ class CustomTitleBar(QFrame):
         self.setContentsMargins(0, 0, 0, 0)
         self.setFixedHeight(50)
         self.setObjectName("CTitleBar")
-        self.setStyleSheet(applyCTheme())
+        self.setStyleSheet(self.applyCTheme())
         self.layout = QHBoxLayout(self)
 
         # Create the dragable zone
@@ -147,6 +249,25 @@ class CustomTitleBar(QFrame):
         for btn in [self.minimizeBtn, self.toogleMaximizeBtn, self.closeBtn]:
             self.layout.addWidget(btn)        
 
+    def applyCTheme(self) -> str:
+        theme = get_theme(getCurrentTheme())
+        return f"""
+        #CTitleBar{{
+            background-color: {theme['secondaryColor']};
+            border-radius: 0px;
+            border-bottom-right-radius: 15px;
+            border-top-right-radius: 15px;
+        }}
+
+        #CTitleBar QFrame{{
+            background-color: {theme['secondaryColor']};
+        }}
+
+        #CloseBtn:hover{{
+            background-color: red;
+        }}
+        """
+
     # Toogle maximize command
     def toogleMaximize(self) -> None:
         """
@@ -175,7 +296,7 @@ class SideBar(QFrame):
         self.setMinimumWidth(0)
 
         self.setObjectName("CSideBar")
-        self.setStyleSheet(applyCTheme())
+        self.setStyleSheet(self.applyCTheme())
         self.layout = QVBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -206,6 +327,18 @@ class SideBar(QFrame):
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(300)  # 300ms animation speed
 
+    def applyCTheme(self) -> str:
+        theme = get_theme(getCurrentTheme())
+        return f"""
+        #CSideBar{{
+            background-color: {theme['secondaryColor']};
+            border-radius: 0px;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }}        
+        """
+
+
     def toggleSidebar(self) -> None:
         """
         Slide the sidebar in or out using width animation (layout-friendly).
@@ -222,11 +355,26 @@ class SectionTitle(QWidget):
         super().__init__()
         layout = QVBoxLayout(self)
         self.setObjectName("SectionTitle")
-        self.setStyleSheet(applyCTheme())
+        self.setStyleSheet(self.applyCTheme())
         label = QLabel(text.upper())
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)
+        line.setFrameShape(QFrame.Shape.HLine)
         line.setFixedSize(90, 8)
         line.setObjectName("line")
         layout.addWidget(label)
         layout.addWidget(line)
+
+    def applyCTheme(self) -> str:
+        theme = get_theme(getCurrentTheme())
+        return f"""
+        #SectionTitle QLabel{{
+            background-color: transparent;
+            font-weight: bold; 
+            font-size: 16px;
+        }}
+
+        #SectionTitle #line{{
+            background-color: {theme['primaryColor']};
+            border-radius: 3px;
+        }}
+        """
