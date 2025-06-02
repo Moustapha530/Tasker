@@ -24,7 +24,7 @@ from themes import applyTaskTheme
 from customWidgets import SectionTitle
 
 class TaskList(QWidget):
-    def __init__(self, name: str):
+    def __init__(self, name: str = "Untitled"):
         super().__init__()
         self.name = name
         self.tasks : list[Task] = []
@@ -81,11 +81,11 @@ class TaskList(QWidget):
         Args:
             name (str): Path to the JSON file.
         """
-        if not os.path.exists(f"data\\taskList\\{name}"):
-            print(f"File \"data\\taskList\\{name}\" does not exist.")
+        if not os.path.exists(f"data\\taskLists\\{name}.json"):
+            print(f"File \"data\\taskLists\\{name}\" does not exist.")
             return
 
-        with open(f"data\\taskLists\\{name}", "r") as f:
+        with open(f"data\\taskLists\\{name}.json", "r") as f:
             try:
                 data = json.load(f)
             except json.JSONDecodeError as e:
@@ -119,7 +119,6 @@ class TaskList(QWidget):
             self.tasks.append(task)
 
         self.updateProgress()
-
 
     def removeTask(self, task):
         if task in self.tasks:
@@ -197,6 +196,7 @@ class TaskListPreview(QWidget):
 class TaskListExplorer(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.tasker = parent 
         self.setObjectName("TaskListExplorer")
         self.maxCol = 10
         self.currentIndex = 0
@@ -225,8 +225,11 @@ class TaskListExplorer(QWidget):
         self.currentIndex += 1
 
     def openList(self, name: str):
-        from main import tasker
-        tasker.addTaskList(name)
+        if self.tasker is None:
+            return
+        taskLists = TaskList()
+        taskLists.loadFromFile(name)
+        self.tasker.addTaskList(taskLists, name)
 
     def renameList(self, old_name: str):
         new_name, ok = QInputDialog.getText(self, "Rename Task List", "New name:", text=old_name)
@@ -250,7 +253,6 @@ class TaskListExplorer(QWidget):
                     item.deleteLater()
                     removeTaskList(name)
                     break
-
 
     def showTaskLists(self) -> None:
         for file in listTaskListName():

@@ -356,12 +356,12 @@ class SectionTitle(QWidget):
         layout = QVBoxLayout(self)
         self.setObjectName("SectionTitle")
         self.setStyleSheet(self.applyCTheme())
-        label = QLabel(text.upper())
+        self.label = QLabel(text.upper())
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFixedSize(90, 8)
         line.setObjectName("line")
-        layout.addWidget(label)
+        layout.addWidget(self.label)
         layout.addWidget(line)
 
     def applyCTheme(self) -> str:

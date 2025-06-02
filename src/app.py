@@ -2,7 +2,6 @@
     The app module for managing the application.
     This is an open-source project made by [SalemMalola](https://github.com/Salem530)
 """
-
 # Dependencies importation
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
@@ -12,14 +11,14 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QVBoxLayout,
     QWidget,
-    QTabWidget,
     QSizePolicy,
     QScrollArea,
+    QStackedLayout
 )
 from qt_material import apply_stylesheet
 
 # Local imports
-from customWidgets import CustomTitleBar, SideBar
+from customWidgets import CustomTitleBar, CustomTabWidget, SideBar
 from tasksList import TaskList, TaskListExplorer
 from themes import applyTheme
 
@@ -37,59 +36,64 @@ class Tasker(QMainWindow):
 
         # Central widget
         self.centralWidget = QWidget(self)
-        self.setCentralWidget(self.centralWidget)
-
+        self.setCentralWidget(self.centralWidget)        
+        self.explorer = TaskListExplorer(self)
         # Top-level vertical layout
         mainLayout = QVBoxLayout(self.centralWidget)
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
 
         # Custom Title Bar at the top
-        self.titleBar = CustomTitleBar(self, "Ts - Tasker")
+        self.titleBar = CustomTitleBar(self, "")
         self.titleBar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         mainLayout.addWidget(self.titleBar)
 
-        # Bottom layout (horizontal): SideBar + TabWidget
-        contentLayout = QHBoxLayout()
-        contentLayout.setContentsMargins(0, 0, 0, 0)
-        contentLayout.setSpacing(0)
+        # Tabs at the top on top of the title bar
+        self.tabs = CustomTabWidget(self)
+        self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.tabs.tabCloseRequested.connect(self.closeTab)
+        mainLayout.addWidget(self.tabs)
+        self.tabs.raise_()
 
         # Sidebar (left)
         self.sideBar = SideBar(self)
         self.sideBar.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
-        self.sideBar.buttons.get("Add task list").clicked.connect(self.addTaskList)
+        self.sideBar.buttons.get("Add task list").clicked.connect(self.addNewTaskList)
         self.sideBar.buttons.get("Show task lists").clicked.connect(self.showTaskListExplorer)
-        contentLayout.addWidget(self.sideBar)
+        mainLayout.addWidget(self.sideBar, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        # Tabs (main content)
-        self.tabs = QTabWidget(self)
-        self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.tabs.setTabsClosable(True)
-        self.tabs.tabCloseRequested.connect(self.closeTab)
-        contentLayout.addWidget(self.tabs)
-
-        # Add horizontal layout into the main vertical layout
-        mainLayout.addLayout(contentLayout)
         self.addWelcomeTab()
 
-    def addTaskList(self):
+    def addTaskList(self, taskList : TaskList, name = "Untitled") -> None:
         # Remove welcome tab if it's the only tab
         if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
             self.tabs.removeTab(0)
 
-        name = "Untitled task list"
-        task_list = TaskList(name)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
 
         container = QWidget()
         container_layout = QVBoxLayout(container)
-        container_layout.addWidget(task_list)
+        container_layout.addWidget(taskList)
         scroll.setWidget(container)
 
-        self.tabs.addTab(scroll, name)
-        self.tabs.setCurrentWidget(scroll)
+        self.tabs.addAnimatedTab(scroll, name)
 
+    def addNewTaskList(self) -> None:
+        # Remove welcome tab if it's the only tab
+        if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
+            self.tabs.removeTab(0)
+
+        taskList = TaskList()
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.addWidget(taskList)
+        scroll.setWidget(container)
+
+        self.tabs.addAnimatedTab(scroll, "Untitled")
 
     def addWelcomeTab(self) -> None:
         self.welcomeTab = QWidget()
@@ -97,7 +101,7 @@ class Tasker(QMainWindow):
         label = QLabel("👋 Welcome to Tasker!")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
-        self.tabs.addTab(self.welcomeTab, "Welcome")
+        self.tabs.addAnimatedTab(self.welcomeTab, "Welcome")
 
     def closeTab(self, index: int):
         widget = self.tabs.widget(index)
@@ -106,7 +110,7 @@ class Tasker(QMainWindow):
         if widget == self.welcomeTab and self.tabs.count() == 1:
             return
 
-        self.tabs.removeTab(index)
+        self.tabs.closeAnimatedTab(index)
         if widget:
             widget.deleteLater()
 
@@ -119,10 +123,5 @@ class Tasker(QMainWindow):
         self.show()
         self.qtApplication.exec_()
 
-    def newTaskList(self) -> None:
-        name = self.sideBar.showTaskListDialog()
-        self.addTaskList(name)
-
     def showTaskListExplorer(self) -> None:
-        explorer = TaskListExplorer(self)
-        self.tabs.addTab(explorer, "Explorer")
+        self.tabs.addAnimatedTab(self.explorer, "Explorer")
