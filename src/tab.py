@@ -1,0 +1,191 @@
+from PyQt5.QtWidgets import QApplication, QTabWidget, QTabBar, QWidget, QVBoxLayout, QLabel
+from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPainterPath, QFontMetrics
+from PyQt5.QtCore import Qt, QRect, QSize, QVariantAnimation, QEasingCurve
+
+
+class CustomTabBar(QTabBar):
+    def __init__(self,
+                 radius=8,
+                 activeColor="#ffffff",
+                 inactiveColor="#e0e0e0",
+                 hoverColor="#f1f3f4",
+                 borderColor="#dcdcdc",
+                 borderWidth=0,
+                 padding=8,
+                 margin=0,
+                 tabWidth=None,
+                 tabHeight=32,
+                 borderTop=False,
+                 borderBottom=False,
+                 borderLeft=False,
+                 borderRight=False,
+                 roundCorners=True):
+        super().__init__()
+
+        self.radius = radius
+        self.activeColor = QColor(activeColor)
+        self.inactiveColor = QColor(inactiveColor)
+        self.hoverColor = QColor(hoverColor)
+        self.borderColor = QColor(borderColor)
+        self.borderWidth = borderWidth
+        self.padding = padding
+        self.margin = margin
+
+        self.fixedTabWidth = tabWidth
+        self.fixedTabHeight = tabHeight
+
+        # Border control (like QSS)
+        self.borderTop = borderTop
+        self.borderBottom = borderBottom
+        self.borderLeft = borderLeft
+        self.borderRight = borderRight
+
+        # Enable or disable corner rounding globally
+        self.roundCorners = roundCorners
+
+        self.hoverIndex = -1
+        self.hoverAnim = QVariantAnimation(self)
+        self.hoverAnim.setDuration(150)
+        self.hoverAnim.setEasingCurve(QEasingCurve.InOutCubic)
+        self.hoverAnim.valueChanged.connect(self.update)
+        self.hoverProgress = 0.0
+
+        self.setMouseTracking(True)
+        self.setUsesScrollButtons(True)
+        self.setExpanding(False)
+
+    def tabSizeHint(self, index):
+        if self.fixedTabWidth is not None:
+            width = self.fixedTabWidth
+        else:
+            metrics = QFontMetrics(self.font())
+            text = self.tabText(index)
+            width = metrics.horizontalAdvance(text) + 2 * self.padding
+
+        return QSize(width, self.fixedTabHeight)
+
+    def enterEvent(self, event):
+        super().enterEvent(event)
+        self.update()
+
+    def leaveEvent(self, event):
+        self.hoverIndex = -1
+        self.hoverAnim.setDirection(self.hoverAnim.Backward)
+        self.hoverAnim.start()
+        super().leaveEvent(event)
+
+    def mouseMoveEvent(self, event):
+        idx = self.tabAt(event.pos())
+        if idx != self.hoverIndex:
+            self.hoverIndex = idx
+            self.hoverAnim.setDirection(self.hoverAnim.Forward)
+            self.hoverAnim.start()
+        super().mouseMoveEvent(event)
+
+    def roundedRect(self, rect, r1, r2, r3, r4):
+        x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
+        path = QPainterPath()
+        path.moveTo(x + r1, y)
+        path.lineTo(x + w - r2, y)
+        path.quadTo(x + w, y, x + w, y + r2)
+        path.lineTo(x + w, y + h - r3)
+        path.quadTo(x + w, y + h, x + w - r3, y + h)
+        path.lineTo(x + r4, y + h)
+        path.quadTo(x, y + h, x, y + h - r4)
+        path.lineTo(x, y + r1)
+        path.quadTo(x, y, x + r1, y)
+        return path
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        current = self.currentIndex()
+
+        for idx in range(self.count()):
+            rect = self.tabRect(idx).adjusted(self.margin, self.margin,
+                                               -self.margin, -self.margin)
+            isActive = (idx == current)
+
+            # Corners based on selection context
+            if self.roundCorners:
+                if isActive:
+                    r1, r2, r3, r4 = self.radius, self.radius, 0, 0
+                elif idx == current - 1:
+                    r1, r2, r3, r4 = 0, 0, self.radius, 0
+                elif idx == current + 1:
+                    r1, r2, r3, r4 = 0, 0, 0, self.radius
+                elif idx == self.hoverIndex:
+                    r1 = r2 = r3 = r4 = self.radius
+                else:
+                    r1 = r2 = r3 = r4 = 0
+            else:
+                r1 = r2 = r3 = r4 = 0
+
+            # Base color
+            if isActive:
+                color = self.activeColor
+            elif idx == self.hoverIndex:
+                color = QColor(self.hoverColor)
+                color.setAlphaF(self.hoverAnim.currentValue() or 0)
+            else:
+                color = self.inactiveColor if (idx == current - 1 or idx == current + 1) else QColor(0, 0, 0, 0)
+
+            path = self.roundedRect(rect, r1, r2, r3, r4)
+
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(color)
+            painter.drawPath(path)
+
+            # Borders by side
+            pen = QPen(self.borderColor, self.borderWidth)
+            painter.setPen(pen)
+            if self.borderTop:
+                painter.drawLine(rect.topLeft(), rect.topRight())
+            if self.borderLeft:
+                painter.drawLine(rect.topLeft(), rect.bottomLeft())
+            if self.borderRight:
+                painter.drawLine(rect.topRight(), rect.bottomRight())
+            if self.borderBottom:
+                painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+
+            painter.setPen(Qt.black)
+            font = QFont()
+            font.setBold(isActive)
+            painter.setFont(font)
+            painter.drawText(rect, Qt.AlignCenter, self.tabText(idx))
+
+        painter.end()
+
+
+class CustomTabWidget(QTabWidget):
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.setTabBar(CustomTabBar(**kwargs))
+        self.setDocumentMode(True)
+        self.setElideMode(Qt.ElideRight)
+
+    def addPage(self, widget: QWidget, title: str):
+        self.addTab(widget, title)
+
+
+# DEMO
+if __name__ == "__main__":
+    import sys
+    app = QApplication(sys.argv)
+    w = CustomTabWidget(
+        tabWidth=120,
+        tabHeight=36,
+        borderTop=True,
+        borderLeft=True,
+        borderRight=True,
+        borderBottom=False,
+        roundCorners=True
+    )
+    for i in range(5):
+        p = QWidget()
+        p.setLayout(QVBoxLayout())
+        p.layout().addWidget(QLabel(f"Content {i}"))
+        w.addPage(p, f"Tab {i}")
+    w.resize(600, 300)
+    w.show()
+    sys.exit(app.exec_())
