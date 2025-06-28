@@ -4,23 +4,21 @@
 """
 # Dependencies importation
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
-    QSizePolicy,
     QScrollArea,
-    QStackedLayout
 )
-from qt_material import apply_stylesheet
 
 # Local imports
-from customWidgets import CustomTitleBar, CustomTabWidget, SideBar
+from customWidgets import CustomTitleBar, SideBar
 from tasksList import TaskList, TaskListExplorer
-from themes import applyTheme
 
 class Tasker(QMainWindow):
     """The main application window with VSCode-like layout."""
@@ -28,46 +26,46 @@ class Tasker(QMainWindow):
     def __init__(self):
         """Initialize the main UI structure."""
         self.qtApplication = QApplication([])
-        apply_stylesheet(self.qtApplication, "dark_blue.xml")
         super().__init__()
+        self.setWindowTitle("Todo List")
+        self.setGeometry(100, 100, 800, 600) # Taille initiale de la fenêtre
+        self.setWindowFlags(Qt.FramelessWindowHint) # Retire la barre de titre par défaut
+        self.setAttribute(Qt.WA_TranslucentBackground) # Permet la transparence pour les coins arrondis
 
-        self.setGeometry(100, 100, 900, 600)
-        self.setStyleSheet(applyTheme())
+        centralWidget = QWidget()
+        centralWidget.setObjectName("MainWindowContainer") 
+        self.setCentralWidget(centralWidget)
 
-        # Central widget
-        self.centralWidget = QWidget(self)
-        self.setCentralWidget(self.centralWidget)        
-        self.explorer = TaskListExplorer(self)
-        # Top-level vertical layout
-        mainLayout = QVBoxLayout(self.centralWidget)
+        mainLayout = QVBoxLayout(centralWidget)
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
 
-        # Custom Title Bar at the top
-        self.titleBar = CustomTitleBar(self, "")
-        self.titleBar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.titleBar = CustomTitleBar(self)
         mainLayout.addWidget(self.titleBar)
 
-        # Tabs at the top on top of the title bar
-        self.tabs = CustomTabWidget(self)
-        self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.tabs.tabCloseRequested.connect(self.closeTab)
-        mainLayout.addWidget(self.tabs)
-        self.tabs.raise_()
+        contentLayout = QHBoxLayout()
+        contentLayout.setContentsMargins(0, 0, 0, 0)
+        contentLayout.setSpacing(0)
 
-        # Sidebar (left)
-        self.sideBar = SideBar(self)
-        self.sideBar.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
-        self.sideBar.buttons.get("Add task list").clicked.connect(self.addNewTaskList)
-        self.sideBar.buttons.get("Show task lists").clicked.connect(self.showTaskListExplorer)
-        mainLayout.addWidget(self.sideBar, alignment=Qt.AlignmentFlag.AlignLeft)
+        sideBar = SideBar(self)
+        contentLayout.addWidget(sideBar)
 
+        mainContentArea = QWidget()
+        mainContentAreaLayout = QVBoxLayout(mainContentArea)
+        mainContentAreaLayout.setContentsMargins(0, 0, 0, 0)
+        mainContentAreaLayout.setSpacing(0)
+        mainContentAreaLayout.addWidget(self.titleBar.tabWidget.findChild(QStackedWidget)) 
+
+        contentLayout.addWidget(mainContentArea)
+        mainLayout.addLayout(contentLayout)
+        self.applyStylesheet()
+        self.addWelcomeTab()
         self.addWelcomeTab()
 
     def addTaskList(self, taskList : TaskList, name = "Untitled") -> None:
         # Remove welcome tab if it's the only tab
-        if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
-            self.tabs.removeTab(0)
+        if self.titleBar.tabWidget.count() == 1 and self.titleBar.tabWidget.widget(0) == self.welcomeTab:
+            self.titleBar.tabWidget.removeTab(0)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -77,12 +75,12 @@ class Tasker(QMainWindow):
         container_layout.addWidget(taskList)
         scroll.setWidget(container)
 
-        self.tabs.addAnimatedTab(scroll, name)
+        self.titleBar.tabWidget.addPage(scroll, name)
 
     def addNewTaskList(self) -> None:
         # Remove welcome tab if it's the only tab
-        if self.tabs.count() == 1 and self.tabs.widget(0) == self.welcomeTab:
-            self.tabs.removeTab(0)
+        if self.titleBar.tabWidget.count() == 1 and self.titleBar.tabWidget.widget(0) == self.welcomeTab:
+            self.titleBar.tabWidget.removeTab(0)
 
         taskList = TaskList()
         scroll = QScrollArea()
@@ -93,7 +91,7 @@ class Tasker(QMainWindow):
         container_layout.addWidget(taskList)
         scroll.setWidget(container)
 
-        self.tabs.addAnimatedTab(scroll, "Untitled")
+        self.titleBar.tabWidget.addTab(scroll, "Untitled")
 
     def addWelcomeTab(self) -> None:
         self.welcomeTab = QWidget()
@@ -101,21 +99,88 @@ class Tasker(QMainWindow):
         label = QLabel("👋 Welcome to Tasker!")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
-        self.tabs.addAnimatedTab(self.welcomeTab, "Welcome")
+        self.titleBar.tabWidget.addTab(self.welcomeTab, "Welcome")
+    
+    def applyStylesheet(self):
+        stylesheet = """
+        #MainWindowContainer {
+            background-color: #282c36; 
+            border-radius: 10px; 
+        }
+
+        #Sidebar {
+            background-color: #3b4252; 
+            border-bottom-left-radius: 10px;
+        }
+
+        #SidebarButton {
+            background-color: transparent;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #SidebarButton:hover {
+            background-color: #4c566a; 
+        }
+
+        #AddItemButton {
+            background-color: #5e81ac; 
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px; 
+        }
+
+        #AddItemButton:hover {
+            background-color: #6a9ac9; 
+        }
+
+        /* --- CustomTitleBar --- */
+        #CustomTitlebar {
+            background-color: #3b4252; 
+            border-top-left-radius: 10px; 
+            border-top-right-radius: 10px; 
+        }
+
+        #Icon, #Icon:hover {
+            background-color: #3b4252; 
+            border: none;
+            border-top-left-radius: 10px; 
+        }
+ 
+        #MinButton, #MaxRestoreButton, #CloseButton {
+            background-color: transparent;
+            color: #eceff4;
+            font-size: 16px;
+            border: none;
+            font-weight: bold;
+        }
+
+        #MinButton:hover, #MaxRestoreButton:hover {
+            background-color: #4c566a; /* Couleur au survol pour min/max */
+        }
+
+        #CloseButton:hover {
+            background-color: #bf616a; /* Rouge pour le bouton fermer */
+            border-top-right-radius: 10px;
+        }
+        """
+        self.setStyleSheet(stylesheet)
 
     def closeTab(self, index: int):
-        widget = self.tabs.widget(index)
+        widget = self.titleBar.tabWidget.widget(index)
 
         # Prevent closing the welcome tab if it's the only one
-        if widget == self.welcomeTab and self.tabs.count() == 1:
+        if widget == self.welcomeTab and self.titleBar.tabWidget.count() == 1:
             return
 
-        self.tabs.closeAnimatedTab(index)
+        self.titleBar.tabWidget.closeTab(index)
         if widget:
             widget.deleteLater()
 
-        # If all task tabs are closed, show the welcome tab again
-        if self.tabs.count() == 0:
+        # If all task tabWidget are closed, show the welcome tab again
+        if self.titleBar.tabWidget.count() == 0:
             self.addWelcomeTab()
 
     def mainLoop(self) -> None:
@@ -124,4 +189,5 @@ class Tasker(QMainWindow):
         self.qtApplication.exec_()
 
     def showTaskListExplorer(self) -> None:
-        self.tabs.addAnimatedTab(self.explorer, "Explorer")
+        explorer = TaskListExplorer(self)
+        self.titleBar.tabWidget.addTab(explorer, "Explorer")
