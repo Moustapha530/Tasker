@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QTabWidget, QTabBar, QWidget, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QTabWidget, QTabBar, QWidget
 from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPainterPath, QFontMetrics
 from PyQt5.QtCore import Qt, QRect, QSize, QVariantAnimation, QEasingCurve
 
@@ -148,11 +148,11 @@ class CustomTabBar(QTabBar):
             if self.borderBottom:
                 painter.drawLine(rect.bottomLeft(), rect.bottomRight())
 
-            painter.setPen(Qt.black)
+            painter.setPen(Qt.GlobalColor.white)
             font = QFont()
             font.setBold(isActive)
             painter.setFont(font)
-            painter.drawText(rect, Qt.AlignCenter, self.tabText(idx))
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.tabText(idx))
 
         painter.end()
 
@@ -166,26 +166,3 @@ class CustomTabWidget(QTabWidget):
 
     def addPage(self, widget: QWidget, title: str):
         self.addTab(widget, title)
-
-
-# DEMO
-if __name__ == "__main__":
-    import sys
-    app = QApplication(sys.argv)
-    w = CustomTabWidget(
-        tabWidth=120,
-        tabHeight=36,
-        borderTop=True,
-        borderLeft=True,
-        borderRight=True,
-        borderBottom=False,
-        roundCorners=True
-    )
-    for i in range(5):
-        p = QWidget()
-        p.setLayout(QVBoxLayout())
-        p.layout().addWidget(QLabel(f"Content {i}"))
-        w.addPage(p, f"Tab {i}")
-    w.resize(600, 300)
-    w.show()
-    sys.exit(app.exec_())
