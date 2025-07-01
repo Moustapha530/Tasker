@@ -104,12 +104,17 @@ class Tasker(QMainWindow):
     def applyStylesheet(self):
         stylesheet = """
         #MainWindowContainer {
-            background-color: #282c36; 
+            background-color: #273044; 
             border-radius: 10px; 
         }
 
+        #BtnFrame {
+            background-color: #2a3247;
+            border-radius: 20px;
+        }
+
         #Sidebar {
-            background-color: #3b4252; 
+            background-color: #181f30; 
             border-bottom-left-radius: 10px;
         }
 
@@ -138,15 +143,15 @@ class Tasker(QMainWindow):
 
         /* --- CustomTitleBar --- */
         #CustomTitlebar {
-            background-color: #3b4252; 
+            background-color: #181f30; 
             border-top-left-radius: 10px; 
             border-top-right-radius: 10px; 
         }
 
         #Icon, #Icon:hover {
-            background-color: #3b4252; 
-            border: none;
-            border-top-left-radius: 10px; 
+            background-color: #2a3247; 
+            border-radius: 10px; 
+            margin: 10px;
         }
  
         #MinButton, #MaxRestoreButton, #CloseButton {
