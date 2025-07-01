@@ -1,8 +1,8 @@
 """
     Module that contains customed widgets for the application.
 """
-from PyQt5.QtCore import QEasingCurve, Qt, QPoint, QPropertyAnimation, QRect, QSize
-from PyQt5.QtGui import QColor, QIcon, QMouseEvent 
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QMouseEvent 
 from PyQt5.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -10,14 +10,13 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton, 
     QVBoxLayout,
-    QSizePolicy,
     QWidget
 )
-
+from qtawesome import icon
 # Locals importations
 from tab import CustomTabWidget
 
-class CustomTitleBar(QWidget):
+class CustomTitleBar(QFrame):
     """
     Custom title bar with the tab widget. 
     """
@@ -34,23 +33,23 @@ class CustomTitleBar(QWidget):
         layout.setSpacing(0)
 
         self.checkBtn = QPushButton("")
-        self.checkBtn.setIcon(QIcon("ressources\\icons\\checked.png"))
+        self.checkBtn.setIcon(icon("fa5s.check", color="white"))
         self.checkBtn.setObjectName("Icon")
-        self.checkBtn.setFixedSize(50, self.height())
+        self.checkBtn.setFixedSize(70, 40)
         layout.addWidget(self.checkBtn)
         
         self.tabWidget = CustomTabWidget(radius=10,
-                activeColor="#282c36",
-                borderTop=True,
+                activeColor="#273044",
+                borderTop=False,
                 borderLeft=False,
                 borderRight=False,
                 borderBottom=False,
                 roundCorners=True,
-                inactiveColor="#3b4252",
-                hoverColor="#4c566a",
+                inactiveColor="#263445",
+                hoverColor="#344058",
                 tabHeight=40,
-                borderColor="#3b4252",
-                borderWidth=10,
+                borderColor="#263445",
+                borderWidth=0,
                 padding=8,
                 margin=0,
                 tabWidth=120)
@@ -60,21 +59,21 @@ class CustomTitleBar(QWidget):
         layout.addStretch() 
 
         self.minButton = QPushButton("")
-        self.minButton.setIcon(QIcon("ressources\\icons\\minimize.png"))
+        self.minButton.setIcon(icon("fa5s.window-minimize", color="white"))
         self.minButton.setObjectName("MinButton")
         self.minButton.setFixedSize(self.height(), self.height())
         self.minButton.clicked.connect(self.minimizeWindow)
         layout.addWidget(self.minButton)
 
         self.maxRestoreButton = QPushButton("")
-        self.maxRestoreButton.setIcon(QIcon("ressources\\icons\\maximize.png"))
+        self.maxRestoreButton.setIcon(icon("mdi.window-maximize", color="white"))
         self.maxRestoreButton.setObjectName("MaxRestoreButton")
         self.maxRestoreButton.setFixedSize(self.height(), self.height())
         self.maxRestoreButton.clicked.connect(self.maximizeRestoreWindow)
         layout.addWidget(self.maxRestoreButton)
 
         self.closeButton = QPushButton("")
-        self.closeButton.setIcon(QIcon("ressources\\icons\\cross.png"))
+        self.closeButton.setIcon(icon("mdi.close", color="white"))
         self.closeButton.setObjectName("CloseButton")
         self.closeButton.setFixedSize(self.height(), self.height())
         self.closeButton.clicked.connect(self.closeWindow)
@@ -104,10 +103,10 @@ class CustomTitleBar(QWidget):
         if self.parentWindow:
             if self.parentWindow.isMaximized():
                 self.parentWindow.showNormal()
-                self.maxRestoreButton.setIcon(QIcon("ressources\\icons\\maximize.png")) 
+                self.maxRestoreButton.setIcon(icon("mdi.window-maximize", color="white"))
             else:
                 self.parentWindow.showMaximized()
-                self.maxRestoreButton.setIcon(QIcon("ressources\\icons\\resize.png"))
+                self.maxRestoreButton.setIcon(icon("mdi.window-restore", color="white"))
 
     def closeWindow(self):
         if self.parentWindow:
@@ -121,42 +120,51 @@ class SideBar(QFrame):
     def __init__(self, parent: QMainWindow) -> None:
         super().__init__(parent)
         self.setObjectName("Sidebar")
-        self.setFixedWidth(50) 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 10, 0, 10)
-        layout.setSpacing(10)
+        self.setFixedWidth(70)
+        mainLayout = QVBoxLayout(self)
+        mainLayout.setContentsMargins(10, 50, 10, 10)
+        mainLayout.setSpacing(10)
+
+        btnFrame = QFrame(self)
+        btnFrame.setFixedWidth(50)
+        btnFrame.setObjectName("BtnFrame")
+
+        layout = QVBoxLayout(btnFrame)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         self.homeBtn = QPushButton()
-        self.homeBtn.setIcon(QIcon("ressources\\icons\\home.png"))
+        self.homeBtn.setIcon(icon("fa5s.home", color="white"))
         self.homeBtn.setObjectName("SidebarButton")
-        self.homeBtn.setFixedSize(50, 50)
+        self.homeBtn.setFixedSize(btnFrame.width(), btnFrame.width())
         layout.addWidget(self.homeBtn)
 
         self.taskListsBtn = QPushButton()
-        self.taskListsBtn.setIcon(QIcon("ressources\\icons\\taskLists.png"))
+        self.taskListsBtn.setIcon(icon("fa5s.folder", color="white"))
         self.taskListsBtn.setObjectName("SidebarButton")
-        self.taskListsBtn.setFixedSize(50, 50)
+        self.taskListsBtn.setFixedSize(btnFrame.width(), btnFrame.width())
         layout.addWidget(self.taskListsBtn)
 
         self.taskCheckBtn = QPushButton()
-        self.taskCheckBtn.setIcon(QIcon("ressources\\icons\\task_check.png"))
+        self.taskCheckBtn.setIcon(icon("fa5s.check-circle", color="white"))
         self.taskCheckBtn.setObjectName("SidebarButton")
-        self.taskCheckBtn.setFixedSize(50, 50)
+        self.taskCheckBtn.setFixedSize(btnFrame.width(), btnFrame.width())
         layout.addWidget(self.taskCheckBtn)
 
         layout.addStretch() 
 
         self.settingsBtn = QPushButton()
-        self.settingsBtn.setIcon(QIcon("ressources\\icons\\settings.png"))
+        self.settingsBtn.setIcon(icon("fa5s.cog", color="white"))
         self.settingsBtn.setObjectName("SidebarButton")
-        self.settingsBtn.setFixedSize(50, 50)
+        self.settingsBtn.setFixedSize(btnFrame.width(), btnFrame.width())
         layout.addWidget(self.settingsBtn)
 
         self.addItemBtn = QPushButton()
-        self.addItemBtn.setIcon(QIcon("ressources\\icons\\new.png"))
+        self.addItemBtn.setIcon(icon("fa5s.plus-circle", color="white"))
         self.addItemBtn.setObjectName("AddItemButton")
-        self.addItemBtn.setFixedSize(50, 50)
+        self.addItemBtn.setFixedSize(btnFrame.width(), btnFrame.width())
         layout.addWidget(self.addItemBtn)
+
+        mainLayout.addWidget(btnFrame)
 
 class SectionTitle(QWidget):
     def __init__(self, text: str):
@@ -170,5 +178,3 @@ class SectionTitle(QWidget):
         line.setObjectName("line")
         layout.addWidget(self.label)
         layout.addWidget(line)
-
-   
