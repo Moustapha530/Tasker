@@ -10,15 +10,19 @@ class CustomTabBar(QTabBar):
                  inactiveColor="#e0e0e0",
                  hoverColor="#f1f3f4",
                  borderColor="#dcdcdc",
-                 borderWidth=0,
+                 borderWidth=1,
                  padding=8,
                  margin=0,
                  tabWidth=None,
                  tabHeight=32,
-                 borderTop=False,
-                 borderBottom=False,
-                 borderLeft=False,
-                 borderRight=False,
+                 borderTop=True,
+                 borderBottom=True,
+                 borderLeft=True,
+                 borderRight=True,
+                 borderTopColor=None,
+                 borderBottomColor=None,
+                 borderLeftColor=None,
+                 borderRightColor=None,
                  roundCorners=True):
         super().__init__()
 
@@ -26,21 +30,25 @@ class CustomTabBar(QTabBar):
         self.activeColor = QColor(activeColor)
         self.inactiveColor = QColor(inactiveColor)
         self.hoverColor = QColor(hoverColor)
-        self.borderColor = QColor(borderColor)
+
         self.borderWidth = borderWidth
+        self.borderTop = borderTop
+        self.borderBottom = borderBottom
+        self.borderLeft = borderLeft
+        self.borderRight = borderRight
+
+        defaultColor = QColor(borderColor)
+        self.borderTopColor = QColor(borderTopColor) if borderTopColor else defaultColor
+        self.borderBottomColor = QColor(borderBottomColor) if borderBottomColor else defaultColor
+        self.borderLeftColor = QColor(borderLeftColor) if borderLeftColor else defaultColor
+        self.borderRightColor = QColor(borderRightColor) if borderRightColor else defaultColor
+
         self.padding = padding
         self.margin = margin
 
         self.fixedTabWidth = tabWidth
         self.fixedTabHeight = tabHeight
 
-        # Border control (like QSS)
-        self.borderTop = borderTop
-        self.borderBottom = borderBottom
-        self.borderLeft = borderLeft
-        self.borderRight = borderRight
-
-        # Enable or disable corner rounding globally
         self.roundCorners = roundCorners
 
         self.hoverIndex = -1
@@ -82,7 +90,7 @@ class CustomTabBar(QTabBar):
             self.hoverAnim.start()
         super().mouseMoveEvent(event)
 
-    def roundedRect(self, rect, r1, r2, r3, r4):
+    def roundedRectPath(self, rect, r1, r2, r3, r4):
         x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
         path = QPainterPath()
         path.moveTo(x + r1, y)
@@ -94,6 +102,7 @@ class CustomTabBar(QTabBar):
         path.quadTo(x, y + h, x, y + h - r4)
         path.lineTo(x, y + r1)
         path.quadTo(x, y, x + r1, y)
+        path.closeSubpath()
         return path
 
     def paintEvent(self, event):
@@ -106,7 +115,6 @@ class CustomTabBar(QTabBar):
                                                -self.margin, -self.margin)
             isActive = (idx == current)
 
-            # Corners based on selection context
             if self.roundCorners:
                 if isActive:
                     r1, r2, r3, r4 = self.radius, self.radius, 0, 0
@@ -121,7 +129,6 @@ class CustomTabBar(QTabBar):
             else:
                 r1 = r2 = r3 = r4 = 0
 
-            # Base color
             if isActive:
                 color = self.activeColor
             elif idx == self.hoverIndex:
@@ -130,29 +137,48 @@ class CustomTabBar(QTabBar):
             else:
                 color = self.inactiveColor if (idx == current - 1 or idx == current + 1) else QColor(0, 0, 0, 0)
 
-            path = self.roundedRect(rect, r1, r2, r3, r4)
+            path = self.roundedRectPath(rect, r1, r2, r3, r4)
 
             painter.setPen(Qt.NoPen)
             painter.setBrush(color)
             painter.drawPath(path)
 
-            # Borders by side
-            pen = QPen(self.borderColor, self.borderWidth)
-            painter.setPen(pen)
-            if self.borderTop:
-                painter.drawLine(rect.topLeft(), rect.topRight())
-            if self.borderLeft:
-                painter.drawLine(rect.topLeft(), rect.bottomLeft())
-            if self.borderRight:
-                painter.drawLine(rect.topRight(), rect.bottomRight())
-            if self.borderBottom:
-                painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+            # Dessin de chaque bordure via un QPainterPath personnalisé
+            border_path = QPainterPath()
+            x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
 
-            painter.setPen(Qt.GlobalColor.white)
+            if self.borderTop:
+                painter.setPen(QPen(self.borderTopColor, self.borderWidth))
+                border_path.moveTo(x + r1, y)
+                border_path.lineTo(x + w - r2, y)
+                if r2 > 0:
+                    border_path.quadTo(x + w, y, x + w, y + r2)
+            if self.borderRight:
+                painter.setPen(QPen(self.borderRightColor, self.borderWidth))
+                border_path.moveTo(x + w, y + r2)
+                border_path.lineTo(x + w, y + h - r3)
+                if r3 > 0:
+                    border_path.quadTo(x + w, y + h, x + w - r3, y + h)
+            if self.borderBottom:
+                painter.setPen(QPen(self.borderBottomColor, self.borderWidth))
+                border_path.moveTo(x + w - r3, y + h)
+                border_path.lineTo(x + r4, y + h)
+                if r4 > 0:
+                    border_path.quadTo(x, y + h, x, y + h - r4)
+            if self.borderLeft:
+                painter.setPen(QPen(self.borderLeftColor, self.borderWidth))
+                border_path.moveTo(x, y + h - r4)
+                border_path.lineTo(x, y + r1)
+                if r1 > 0:
+                    border_path.quadTo(x, y, x + r1, y)
+
+            painter.drawPath(border_path)
+
+            painter.setPen(Qt.black)
             font = QFont()
             font.setBold(isActive)
             painter.setFont(font)
-            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.tabText(idx))
+            painter.drawText(rect, Qt.AlignCenter, self.tabText(idx))
 
         painter.end()
 
