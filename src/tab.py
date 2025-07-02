@@ -171,8 +171,9 @@ class CustomTabBar(QTabBar):
                 border_path.lineTo(x, y + r1)
                 if r1 > 0:
                     border_path.quadTo(x, y, x + r1, y)
-
-            painter.drawPath(border_path)
+                    
+            if self.borderWidth:
+                painter.drawPath(border_path)
 
             painter.setPen(Qt.black)
             font = QFont()
