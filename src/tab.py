@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTabWidget, QTabBar, QWidget
+from PyQt5.QtWidgets import QApplication, QTabWidget, QTabBar, QWidget, QVBoxLayout, QLabel
 from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPainterPath, QFontMetrics
 from PyQt5.QtCore import Qt, QRect, QSize, QVariantAnimation, QEasingCurve
 
@@ -59,8 +59,11 @@ class CustomTabBar(QTabBar):
         self.hoverProgress = 0.0
 
         self.setMouseTracking(True)
-        self.setUsesScrollButtons(True)
+        self.setUsesScrollButtons(False)
         self.setExpanding(False)
+        self.setTabsClosable(True)
+        self.setMovable(True)
+        self.setContentsMargins(0, 0, 0, 0)
 
     def tabSizeHint(self, index):
         if self.fixedTabWidth is not None:
@@ -171,15 +174,15 @@ class CustomTabBar(QTabBar):
                 border_path.lineTo(x, y + r1)
                 if r1 > 0:
                     border_path.quadTo(x, y, x + r1, y)
-                    
+            
             if self.borderWidth:
                 painter.drawPath(border_path)
 
-            painter.setPen(Qt.black)
+            painter.setPen(Qt.GlobalColor.white)
             font = QFont()
             font.setBold(isActive)
             painter.setFont(font)
-            painter.drawText(rect, Qt.AlignCenter, self.tabText(idx))
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.tabText(idx))
 
         painter.end()
 
@@ -190,6 +193,10 @@ class CustomTabWidget(QTabWidget):
         self.setTabBar(CustomTabBar(**kwargs))
         self.setDocumentMode(True)
         self.setElideMode(Qt.ElideRight)
+        self.setTabsClosable(False)
+        self.setMovable(True)
+        self.setUsesScrollButtons(False)
+        self.setContentsMargins(0, 0, 0, 0)
 
     def addPage(self, widget: QWidget, title: str):
         self.addTab(widget, title)
