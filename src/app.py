@@ -15,12 +15,13 @@ from PyQt5.QtWidgets import (
     QWidget,
     QScrollArea,
 )
+from qframelesswindow import FramelessMainWindow
 
 # Local imports
 from customWidgets import CustomTitleBar, SideBar
 from tasksList import TaskList, TaskListExplorer
 
-class Tasker(QMainWindow):
+class Tasker(FramelessMainWindow):
     """The main application window with VSCode-like layout."""
 
     def __init__(self):
@@ -28,9 +29,9 @@ class Tasker(QMainWindow):
         self.qtApplication = QApplication([])
         super().__init__()
         self.setWindowTitle("Todo List")
-        self.setGeometry(100, 100, 800, 600) # Taille initiale de la fenêtre
-        self.setWindowFlags(Qt.FramelessWindowHint) # Retire la barre de titre par défaut
-        self.setAttribute(Qt.WA_TranslucentBackground) # Permet la transparence pour les coins arrondis
+        self.setGeometry(100, 100, 800, 600)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         centralWidget = QWidget()
         centralWidget.setObjectName("MainWindowContainer") 
@@ -39,8 +40,8 @@ class Tasker(QMainWindow):
         mainLayout = QVBoxLayout(centralWidget)
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
-
-        self.titleBar = CustomTitleBar(self)
+        
+        self.setTitleBar(CustomTitleBar())
         mainLayout.addWidget(self.titleBar)
 
         contentLayout = QHBoxLayout()
