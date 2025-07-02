@@ -17,7 +17,7 @@ from qtawesome import icon
 # Locals importations
 from tab import CustomTabWidget
 
-class CustomTitleBar(QWidget):
+class CustomTitleBar(QFrame):
     """
     Custom title bar with the tab widget. 
     """
@@ -35,7 +35,7 @@ class CustomTitleBar(QWidget):
         self.checkBtn = QPushButton("")
         self.checkBtn.setIcon(icon("fa5s.check", color="white"))
         self.checkBtn.setObjectName("Icon")
-        self.checkBtn.setFixedSize(65, 40)
+        self.checkBtn.setFixedSize(70, 40)
         layout.addWidget(self.checkBtn)
         
         self.tabWidget = CustomTabWidget(radius=10,
@@ -43,14 +43,12 @@ class CustomTitleBar(QWidget):
                 inactiveColor="#181f30",
                 hoverColor="#344058",
                 tabHeight=42,
-                borderColor="#181f30",
-                borderBottomColor="#273044",
                 borderWidth=0,
                 padding=8,
                 margin=0,
                 tabWidth=140)
         self.tabWidget.setObjectName("CustomTabWidget")
-        self.tabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.tabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
         layout.addWidget(self.tabWidget)
 
         layout.addStretch() 

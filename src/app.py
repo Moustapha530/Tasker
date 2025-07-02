@@ -149,6 +149,10 @@ class Tasker(FramelessMainWindow):
             border-top-right-radius: 10px; 
         }
 
+        #CustomTabWidget QTabBar {
+            background-color: #273044;
+        }
+
         #Icon, #Icon:hover {
             background-color: #2a3247; 
             border-radius: 10px; 
