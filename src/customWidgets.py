@@ -2,7 +2,7 @@
     Module that contains customed widgets for the application.
 """
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QMouseEvent 
+from PyQt5.QtGui import QMouseEvent 
 from PyQt5.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -10,19 +10,19 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton, 
     QVBoxLayout,
+    QSizePolicy,
     QWidget
 )
 from qtawesome import icon
 # Locals importations
 from tab import CustomTabWidget
 
-class CustomTitleBar(QFrame):
+class CustomTitleBar(QWidget):
     """
     Custom title bar with the tab widget. 
     """
-    def __init__(self, parent : QMainWindow):
-        super().__init__(parent)
-        self.parentWindow = parent
+    def __init__(self):
+        super().__init__()
         self.setFixedHeight(40) 
         self.setupUi()
         self.setObjectName("CustomTitlebar")
@@ -35,25 +35,22 @@ class CustomTitleBar(QFrame):
         self.checkBtn = QPushButton("")
         self.checkBtn.setIcon(icon("fa5s.check", color="white"))
         self.checkBtn.setObjectName("Icon")
-        self.checkBtn.setFixedSize(70, 40)
+        self.checkBtn.setFixedSize(65, 40)
         layout.addWidget(self.checkBtn)
         
         self.tabWidget = CustomTabWidget(radius=10,
                 activeColor="#273044",
-                borderTop=False,
-                borderLeft=False,
-                borderRight=False,
-                borderBottom=False,
-                roundCorners=True,
-                inactiveColor="#263445",
+                inactiveColor="#181f30",
                 hoverColor="#344058",
-                tabHeight=40,
-                borderColor="#263445",
+                tabHeight=42,
+                borderColor="#181f30",
+                borderBottomColor="#273044",
                 borderWidth=0,
                 padding=8,
                 margin=0,
-                tabWidth=120)
+                tabWidth=140)
         self.tabWidget.setObjectName("CustomTabWidget")
+        self.tabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         layout.addWidget(self.tabWidget)
 
         layout.addStretch() 
@@ -83,12 +80,12 @@ class CustomTitleBar(QFrame):
 
     def mousePressEvent(self, event : QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.startPos = event.globalPos() - self.parentWindow.frameGeometry().topLeft()
+            self.startPos = event.globalPos() - self.window().frameGeometry().topLeft()
             event.accept()
 
     def mouseMoveEvent(self, event : QMouseEvent):
         if self.startPos is not None and event.buttons() == Qt.MouseButton.LeftButton:
-            self.parentWindow.move(event.globalPos() - self.startPos)
+            self.window().move(event.globalPos() - self.startPos)
             event.accept()
 
     def mouseReleaseEvent(self, event : QMouseEvent):
@@ -96,21 +93,20 @@ class CustomTitleBar(QFrame):
         event.accept()
 
     def minimizeWindow(self):
-        if self.parentWindow:
-            self.parentWindow.showMinimized()
+        if self.window():
+            self.window().showMinimized()
 
     def maximizeRestoreWindow(self):
-        if self.parentWindow:
-            if self.parentWindow.isMaximized():
-                self.parentWindow.showNormal()
-                self.maxRestoreButton.setIcon(icon("mdi.window-maximize", color="white"))
-            else:
-                self.parentWindow.showMaximized()
-                self.maxRestoreButton.setIcon(icon("mdi.window-restore", color="white"))
+        if self.window().isMaximized():
+            self.window().showNormal()
+            self.maxRestoreButton.setIcon(icon("mdi.window-maximize", color="white"))
+        else:
+            self.window().showMaximized()
+            self.maxRestoreButton.setIcon(icon("mdi.window-restore", color="white"))
 
     def closeWindow(self):
-        if self.parentWindow:
-            self.parentWindow.close()
+        if self.window():
+            self.window().close()
 
 class SideBar(QFrame):
     """
@@ -122,7 +118,7 @@ class SideBar(QFrame):
         self.setObjectName("Sidebar")
         self.setFixedWidth(70)
         mainLayout = QVBoxLayout(self)
-        mainLayout.setContentsMargins(10, 50, 10, 10)
+        mainLayout.setContentsMargins(10, 40, 10, 10)
         mainLayout.setSpacing(10)
 
         btnFrame = QFrame(self)
@@ -130,7 +126,7 @@ class SideBar(QFrame):
         btnFrame.setObjectName("BtnFrame")
 
         layout = QVBoxLayout(btnFrame)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(0, 20, 0, 0)
 
         self.homeBtn = QPushButton()
         self.homeBtn.setIcon(icon("fa5s.home", color="white"))
