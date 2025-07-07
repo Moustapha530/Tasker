@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QTabWidget, QTabBar, QWidget, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QTabWidget, QTabBar, QWidget
 from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QPainterPath, QFontMetrics
-from PyQt5.QtCore import Qt, QRect, QSize, QVariantAnimation, QEasingCurve
+from PyQt5.QtCore import Qt, QSize, QVariantAnimation, QEasingCurve
 
 
 class CustomTabBar(QTabBar):

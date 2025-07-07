@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QCheckBox, QPushButton, QVBoxLayout,
     QLineEdit, QScrollArea, QStackedLayout, QWidget, QGraphicsOpacityEffect
 )
-from themes import applyTaskTheme
 
 
 class Task(QFrame):
@@ -25,7 +24,6 @@ class Task(QFrame):
         self.isExpanded = False
 
         self.setObjectName("Task")
-        self.setStyleSheet(applyTaskTheme())
 
         mainLayout = QVBoxLayout(self)
         mainLayout.setContentsMargins(10, 8, 10, 8)

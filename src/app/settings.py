@@ -3,7 +3,7 @@
 """
 from json.encoder import JSONEncoder
 
-from filesManager import loadJsonData
+from app.core import loadJsonData
 
 def getSetting(name : str) -> str | dict | list:
         try:

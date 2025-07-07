@@ -18,9 +18,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, 
     QWidget, 
 )
-from filesManager import listTaskListName, removeTaskList, renameTaskList
-from task import SubTask, Task
-from themes import applyTaskTheme
+from .core import listTaskListName, removeTaskList, renameTaskList
+from .task import SubTask, Task
 from customWidgets import SectionTitle
 
 class TaskList(QWidget):
@@ -29,7 +28,6 @@ class TaskList(QWidget):
         self.name = name
         self.tasks : list[Task] = []
         self.setObjectName("TaskList")
-        self.setStyleSheet(applyTaskTheme())
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 

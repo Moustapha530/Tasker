@@ -1,10 +1,4 @@
-"""
-    The app module for managing the application.
-    This is an open-source project made by [SalemMalola](https://github.com/Salem530)
-"""
-# Dependencies importation
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -15,33 +9,33 @@ from PyQt5.QtWidgets import (
     QWidget,
     QScrollArea,
 )
-from qframelesswindow import FramelessMainWindow
 
 # Local imports
 from customWidgets import CustomTitleBar, SideBar
-from tasksList import TaskList, TaskListExplorer
+from .tasksList import TaskList, TaskListExplorer
 
-class Tasker(FramelessMainWindow):
+class Tasker(QMainWindow):
     """The main application window with VSCode-like layout."""
 
     def __init__(self):
         """Initialize the main UI structure."""
         self.qtApplication = QApplication([])
         super().__init__()
-        self.setWindowTitle("Todo List")
+        self.setWindowTitle("Tasker")
         self.setGeometry(100, 100, 800, 600)
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        self.setContentsMargins(0, 0, 0, 0)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         centralWidget = QWidget()
         centralWidget.setObjectName("MainWindowContainer") 
+        centralWidget.resize(self.width(), self.height())
         self.setCentralWidget(centralWidget)
 
         mainLayout = QVBoxLayout(centralWidget)
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
         
-        self.setTitleBar(CustomTitleBar())
+        self.titleBar = CustomTitleBar()
         mainLayout.addWidget(self.titleBar)
 
         contentLayout = QHBoxLayout()
