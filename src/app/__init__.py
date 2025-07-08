@@ -3,18 +3,17 @@ from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QLabel,
-    QMainWindow,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
     QScrollArea,
 )
-
+from qframelesswindow import FramelessMainWindow
 # Local imports
 from customWidgets import CustomTitleBar, SideBar
 from .tasksList import TaskList, TaskListExplorer
 
-class Tasker(QMainWindow):
+class Tasker(FramelessMainWindow):
     """The main application window with VSCode-like layout."""
 
     def __init__(self):
@@ -24,18 +23,16 @@ class Tasker(QMainWindow):
         self.setWindowTitle("Tasker")
         self.setGeometry(100, 100, 800, 600)
         self.setContentsMargins(0, 0, 0, 0)
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         centralWidget = QWidget()
         centralWidget.setObjectName("MainWindowContainer") 
-        centralWidget.resize(self.width(), self.height())
         self.setCentralWidget(centralWidget)
 
         mainLayout = QVBoxLayout(centralWidget)
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(0)
         
-        self.titleBar = CustomTitleBar()
+        self.titleBar = CustomTitleBar(self)
         mainLayout.addWidget(self.titleBar)
 
         contentLayout = QHBoxLayout()
@@ -100,7 +97,6 @@ class Tasker(QMainWindow):
         stylesheet = """
         #MainWindowContainer {
             background-color: #273044; 
-            border-radius: 10px; 
         }
 
         #BtnFrame {
