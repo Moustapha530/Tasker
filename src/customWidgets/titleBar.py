@@ -1,26 +1,42 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QMouseEvent 
+from PyQt5.QtCore import QEvent
 from PyQt5.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QPushButton, 
     QSizePolicy,
 )
+from qframelesswindow import TitleBarBase
 from qtawesome import icon
 # Locals importations
 from .tab import CustomTabWidget
 
-class CustomTitleBar(QFrame):
+class CustomTitleBar(QFrame, TitleBarBase):
     """
     Custom title bar with the tab widget. 
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parentWindow = parent
         self.setFixedHeight(40) 
         self.setupUi()
         self.setObjectName("CustomTitlebar")
 
-    def setupUi(self):
+    def eventFilter(self, obj, e : QEvent) -> bool:
+        if obj is self.parentWindow:
+            if e.type() == QEvent.Type.WindowStateChange:
+                self.updateMaxRestoreButton()
+                return False
+
+        return super().eventFilter(obj, e)
+
+    def maximizeRestoreWindow(self) -> None:
+        self.updateMaxRestoreButton()
+        if self.window().isMaximized():
+            self.window().showNormal()
+        else:
+            self.window().showMaximized()
+
+    def setupUi(self) -> None:
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -50,7 +66,7 @@ class CustomTitleBar(QFrame):
         self.minButton.setIcon(icon("fa5s.window-minimize", color="white"))
         self.minButton.setObjectName("MinButton")
         self.minButton.setFixedSize(self.height(), self.height())
-        self.minButton.clicked.connect(self.minimizeWindow)
+        self.minButton.clicked.connect(self.window().showMinimized)
         layout.addWidget(self.minButton)
 
         self.maxRestoreButton = QPushButton("")
@@ -64,37 +80,13 @@ class CustomTitleBar(QFrame):
         self.closeButton.setIcon(icon("mdi.close", color="white"))
         self.closeButton.setObjectName("CloseButton")
         self.closeButton.setFixedSize(self.height(), self.height())
-        self.closeButton.clicked.connect(self.closeWindow)
+        self.closeButton.clicked.connect(self.window().close)
         layout.addWidget(self.closeButton)
 
         self.startPos = None
 
-    def mousePressEvent(self, event : QMouseEvent):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.startPos = event.globalPos() - self.window().frameGeometry().topLeft()
-            event.accept()
-
-    def mouseMoveEvent(self, event : QMouseEvent):
-        if self.startPos is not None and event.buttons() == Qt.MouseButton.LeftButton:
-            self.window().move(event.globalPos() - self.startPos)
-            event.accept()
-
-    def mouseReleaseEvent(self, event : QMouseEvent):
-        self.startPos = None
-        event.accept()
-
-    def minimizeWindow(self):
-        if self.window():
-            self.window().showMinimized()
-
-    def maximizeRestoreWindow(self):
+    def updateMaxRestoreButton(self) -> None:
         if self.window().isMaximized():
-            self.window().showNormal()
-            self.maxRestoreButton.setIcon(icon("mdi.window-maximize", color="white"))
-        else:
-            self.window().showMaximized()
             self.maxRestoreButton.setIcon(icon("mdi.window-restore", color="white"))
-
-    def closeWindow(self):
-        if self.window():
-            self.window().close()
+        else:
+            self.maxRestoreButton.setIcon(icon("mdi.window-maximize", color="white"))
