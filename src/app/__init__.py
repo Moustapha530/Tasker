@@ -106,7 +106,6 @@ class Tasker(FramelessMainWindow):
 
         #Sidebar {
             background-color: #181f30; 
-            border-bottom-left-radius: 10px;
         }
 
         #SidebarButton {
@@ -135,8 +134,6 @@ class Tasker(FramelessMainWindow):
         /* --- CustomTitleBar --- */
         #CustomTitlebar {
             background-color: #181f30; 
-            border-top-left-radius: 10px; 
-            border-top-right-radius: 10px; 
         }
 
         #CustomTabWidget QTabBar {
@@ -163,7 +160,6 @@ class Tasker(FramelessMainWindow):
 
         #CloseButton:hover {
             background-color: #bf616a; /* Rouge pour le bouton fermer */
-            border-top-right-radius: 10px;
         }
         """
         self.setStyleSheet(stylesheet)
