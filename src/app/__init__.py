@@ -50,6 +50,7 @@ class Tasker(FramelessMainWindow):
 
         contentLayout.addWidget(mainContentArea)
         mainLayout.addLayout(contentLayout)
+        self.titleBar.tabWidget.tabCloseRequested.connect(self.closeTab)
         self.applyStylesheet()
         self.addWelcomeTab()
         self.addWelcomeTab()
@@ -67,7 +68,7 @@ class Tasker(FramelessMainWindow):
         container_layout.addWidget(taskList)
         scroll.setWidget(container)
 
-        self.titleBar.tabWidget.addPage(scroll, name)
+        self.titleBar.tabWidget.addTab(scroll, name)
 
     def addNewTaskList(self) -> None:
         # Remove welcome tab if it's the only tab
@@ -136,8 +137,17 @@ class Tasker(FramelessMainWindow):
             background-color: #181f30; 
         }
 
-        #CustomTabWidget QTabBar {
-            background-color: #273044;
+        #CustomTabWidget QTabBar::close-button {
+            border-radius: 6px;
+            image : url("ressources/images/cross.png");
+            padding: 4px;
+            subcontrol-position: right;
+            width: 32px;
+            height: 32px;
+        }
+
+        #CustomTabWidget QTabBar::close-button:hover {
+            background-color: #6a9ac9; 
         }
 
         #Icon, #Icon:hover {
@@ -171,11 +181,11 @@ class Tasker(FramelessMainWindow):
         if widget == self.welcomeTab and self.titleBar.tabWidget.count() == 1:
             return
 
-        self.titleBar.tabWidget.closeTab(index)
+        self.titleBar.tabWidget.removeTab(index)
         if widget:
             widget.deleteLater()
 
-        # If all task tabWidget are closed, show the welcome tab again
+        # If all task tabs are closed, show the welcome tab again
         if self.titleBar.tabWidget.count() == 0:
             self.addWelcomeTab()
 

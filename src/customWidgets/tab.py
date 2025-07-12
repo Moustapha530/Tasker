@@ -133,17 +133,13 @@ class CustomTabBar(QTabBar):
 
         painter.end()
 
-
 class CustomTabWidget(QTabWidget):
     def __init__(self, **kwargs):
         super().__init__()
         self.setTabBar(CustomTabBar(**kwargs))
         self.setDocumentMode(True)
-        self.setElideMode(Qt.ElideRight)
-        self.setTabsClosable(False)
+        self.setElideMode(Qt.TextElideMode.ElideRight)
+        self.setTabsClosable(True)
         self.setMovable(True)
         self.setUsesScrollButtons(False)
         self.setContentsMargins(0, 0, 0, 0)
-
-    def addPage(self, widget: QWidget, title: str):
-        self.addTab(widget, title)
