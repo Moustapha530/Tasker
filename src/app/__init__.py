@@ -21,7 +21,7 @@ class Tasker(FramelessMainWindow):
         self.qtApplication = QApplication([])
         super().__init__()
         self.setWindowTitle("Tasker")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(10, 10, 500, 500)
         self.setContentsMargins(0, 0, 0, 0)
 
         centralWidget = QWidget()
@@ -42,6 +42,12 @@ class Tasker(FramelessMainWindow):
         sideBar = SideBar(self)
         contentLayout.addWidget(sideBar)
 
+        sideBar.homeBtn.clicked.connect(self.addWelcomeTab)
+        sideBar.taskListsBtn.clicked.connect(self.showTaskListExplorer)
+        sideBar.taskCheckBtn.clicked.connect(self.settings)
+        sideBar.settingsBtn.clicked.connect(self.settings)
+        sideBar.addItemBtn.clicked.connect(self.addNewTaskList)
+
         mainContentArea = QWidget()
         mainContentAreaLayout = QVBoxLayout(mainContentArea)
         mainContentAreaLayout.setContentsMargins(0, 0, 0, 0)
@@ -52,8 +58,6 @@ class Tasker(FramelessMainWindow):
         mainLayout.addLayout(contentLayout)
         self.titleBar.tabWidget.tabCloseRequested.connect(self.closeTab)
         self.applyStylesheet()
-        self.addWelcomeTab()
-        self.addWelcomeTab()
 
     def addTaskList(self, taskList : TaskList, name = "Untitled") -> None:
         # Remove welcome tab if it's the only tab
@@ -193,6 +197,9 @@ class Tasker(FramelessMainWindow):
         """Start the application event loop."""
         self.show()
         self.qtApplication.exec_()
+
+    def settings(self) -> None:
+        pass
 
     def showTaskListExplorer(self) -> None:
         explorer = TaskListExplorer(self)
