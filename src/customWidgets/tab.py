@@ -134,6 +134,7 @@ class CustomTabBar(QTabBar):
         painter.end()
 
 class CustomTabWidget(QTabWidget):
+    
     def __init__(self, **kwargs):
         super().__init__()
         self.setTabBar(CustomTabBar(**kwargs))
@@ -143,3 +144,26 @@ class CustomTabWidget(QTabWidget):
         self.setMovable(True)
         self.setUsesScrollButtons(False)
         self.setContentsMargins(0, 0, 0, 0)
+
+    def addTab(self, widget: QWidget, title: str) -> int:
+        """
+        Add a new tab with the given widget and title.
+        If the widget already exists in the tab widget, it will be activated instead of adding a duplicate.
+
+        Parameters:
+            widget (QWidget): The content widget of the tab.
+            title (str): The title to be displayed on the tab.
+
+        Returns:
+            int: The index of the activated or newly added tab.
+        """
+        # Vérifie si le widget est déjà présent
+        existingIndex = self.indexOf(widget)
+        if existingIndex != -1:
+            self.setCurrentIndex(existingIndex)
+            return existingIndex
+
+        # Sinon, ajoute l'onglet et le rend actif
+        index = super().addTab(widget, title)
+        self.setCurrentIndex(index)
+        return index
