@@ -1,7 +1,7 @@
 
 __all__ = ["sideBar", "titleBar", "tab"]
 
-from .shadowWidgets import ShadowFrame, ShadowWidget, ShadowButton 
+from .shadowWidgets import ShadowFrame 
 from .sideBar import SideBar
 from .titleBar import CustomTitleBar
 from .tab import CustomTabWidget
