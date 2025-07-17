@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QFrame, QPushButton
+from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect, QFrame
 from PyQt5.QtGui import QColor
 
-class ShadowWidget(QWidget):
+class ShadowFrame(QFrame):
     def __init__(self,
                  shadowColor : QColor = QColor(0, 0, 0, 100),  # Default black semi-transparent shadow
                  blurRadius : int = 20,
@@ -40,23 +40,3 @@ class ShadowWidget(QWidget):
 
         # Assign the effect to this widget
         self.setGraphicsEffect(shadow)
-
-class ShadowFrame(ShadowWidget, QFrame):
-
-    def __init__(self, 
-                 shadowColor: QColor = QColor(0, 0, 0, 100), 
-                 blurRadius: int = 20, 
-                 offset: int = 10, 
-                 sides: str | list[str] = 'bottom', 
-                 parent: QWidget | None = None) -> None:
-        super().__init__(shadowColor, blurRadius, offset, sides, parent)
-
-class ShadowButton(ShadowWidget, QPushButton):
-
-    def __init__(self, 
-                 shadowColor: QColor = QColor(0, 0, 0, 100), 
-                 blurRadius: int = 20, 
-                 offset: int = 10, 
-                 sides: str | list[str] = 'bottom', 
-                 parent: QWidget | None = None) -> None:
-        super().__init__(shadowColor, blurRadius, offset, sides, parent)
