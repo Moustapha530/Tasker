@@ -75,10 +75,6 @@ class Tasker(FramelessMainWindow):
         self.titleBar.tabWidget.addTab(scroll, name)
 
     def addNewTaskList(self) -> None:
-        # Remove welcome tab if it's the only tab
-        if self.titleBar.tabWidget.count() == 1 and self.titleBar.tabWidget.widget(0) == self.welcomeTab:
-            self.titleBar.tabWidget.removeTab(0)
-
         taskList = TaskList()
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -141,6 +137,10 @@ class Tasker(FramelessMainWindow):
             background-color: #181f30; 
         }
 
+        #CustomTabWidget QTabBar {
+            background-color: #273044;
+        }
+
         #CustomTabWidget QTabBar::close-button {
             border-radius: 6px;
             image : url("ressources/images/cross.png");
@@ -169,11 +169,17 @@ class Tasker(FramelessMainWindow):
         }
 
         #MinButton:hover, #MaxRestoreButton:hover {
-            background-color: #4c566a; /* Couleur au survol pour min/max */
+            background-color: #4c566a;
         }
 
         #CloseButton:hover {
-            background-color: #bf616a; /* Rouge pour le bouton fermer */
+            background-color: #bf616a; 
+        }
+
+        /* Default style */
+        QWidget {
+            background-color: transparent;
+            border: none;
         }
         """
         self.setStyleSheet(stylesheet)
