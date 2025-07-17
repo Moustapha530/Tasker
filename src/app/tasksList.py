@@ -4,13 +4,13 @@
 import json
 import os
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QGridLayout,
     QLabel,
     QScrollArea,
-    QPushButton, 
+    QPushButton,
+    QFrame, 
     QProgressBar,
     QInputDialog, 
     QMessageBox,
@@ -18,16 +18,21 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, 
     QWidget, 
 )
+from qtawesome import icon
 from .core import listTaskListName, removeTaskList, renameTaskList
 from .task import SubTask, Task
 from customWidgets import SectionTitle
 
-class TaskList(QWidget):
+class TaskList(QFrame):
+
     def __init__(self, name: str = "Untitled"):
         super().__init__()
         self.name = name
         self.tasks : list[Task] = []
+
         self.setObjectName("TaskList")
+        self.setStyleSheet(self.applyStyleSheet())
+
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -41,19 +46,16 @@ class TaskList(QWidget):
         self.nameLabel = SectionTitle(name)
         self.progress = QProgressBar()
         self.progress.setValue(0)
+        self.progress.setTextVisible(False)
 
         self.addTaskBtn = QPushButton("")
-        self.addTaskBtn.setIcon(QIcon("ressources\\icons\\new.png"))
+        self.addTaskBtn.setIcon(icon("fa5s.plus", color="white"))
         self.addTaskBtn.setToolTip("Add task")
-        self.saveBtn = QPushButton("")
-        self.saveBtn.setIcon(QIcon("ressources\\icons\\save.png"))
-        self.saveBtn.setToolTip("Save")
-
+        self.addTaskBtn.setFixedSize(32, 32)
 
         header.addWidget(self.nameLabel)
         toolsLayout.addWidget(self.progress)
         toolsLayout.addWidget(self.addTaskBtn)
-        toolsLayout.addWidget(self.saveBtn)
 
         layout.addLayout(header)
         layout.addLayout(toolsLayout)
@@ -64,13 +66,35 @@ class TaskList(QWidget):
         layout.addLayout(self.taskLayout)
 
         self.addTaskBtn.clicked.connect(self.addTask)
-        self.saveBtn.clicked.connect(self.saveToFile)
 
     def addTask(self):
         task = Task("New Task", self)
         self.taskLayout.addWidget(task)
         self.tasks.append(task)
         self.updateProgress()
+
+    def applyStyleSheet(self) -> str:
+        return """
+        #TaskList QLabel {
+            color: white;
+        }
+
+        #TaskList QPushButton:hover {
+            background-color: #4c566a;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        #TaskList QProgressBar {
+            background-color: #2e3b5b;
+            border-radius: 10px;
+        }
+
+        #TaskList QProgressBar::chunk {
+            background-color: green;
+            border-radius: 10px;
+        }
+        """
 
     def loadFromFile(self, name: str):
         """
@@ -149,20 +173,21 @@ class TaskListPreview(QWidget):
         super().__init__()
         self.name = name
         self.setObjectName("TaskListPreview")
+        self.setStyleSheet(self.applyStyleSheet())
 
         mainLayout = QVBoxLayout(self)
         mainLayout.setContentsMargins(10, 5, 10, 5)
 
-        icon = QLabel()
-        icon.setPixmap(QIcon("ressources\\icons\\checkList.png").pixmap(32, 32))
+        self.icon = QLabel()
+        self.icon.setPixmap(icon("fa5s.tasks", color="white").pixmap(32, 32))
 
         self.label = QLabel(name)
         self.optionsBtn = QPushButton("")
-        self.optionsBtn.setIcon(QIcon("ressources\\icons\\tree_points.png"))
-        self.optionsBtn.setFixedWidth(30)
+        self.optionsBtn.setIcon(icon("fa5s.ellipsis-v", color="white"))
+        self.optionsBtn.setFixedSize(32, 32)
         self.optionsBtn.setVisible(False)
 
-        mainLayout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignHCenter)
+        mainLayout.addWidget(self.icon, alignment=Qt.AlignmentFlag.AlignHCenter)
         bottomLayout = QHBoxLayout()
         bottomLayout.addWidget(self.label, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
         bottomLayout.addWidget(self.optionsBtn, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
@@ -171,6 +196,19 @@ class TaskListPreview(QWidget):
 
         self.optionsBtn.clicked.connect(self.showOptions)
         self.setFixedSize(125, 95)
+
+    def applyStyleSheet(self) -> str:
+        return """
+        #TaskListPreview QLabel {
+            color: white;
+        }
+
+        #TaskListPreview QPushButton:hover {
+            background-color: #4c566a;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        """
 
     def showOptions(self):
         menu = QMenu(self)
@@ -192,10 +230,14 @@ class TaskListPreview(QWidget):
         self.openRequested.emit(self.name)
 
 class TaskListExplorer(QWidget):
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.tasker = parent 
+
         self.setObjectName("TaskListExplorer")
+        self.setStyleSheet(self.applyStyleSheet())
+
         self.maxCol = 10
         self.currentIndex = 0
         layout = QVBoxLayout(self)
@@ -221,6 +263,13 @@ class TaskListExplorer(QWidget):
         col = self.currentIndex % self.maxCol
         self.listLayout.addWidget(preview, row, col)
         self.currentIndex += 1
+
+    def applyStyleSheet(self) -> str:
+        return """
+        #TaskListExplorer QLabel {
+            color: white;
+        }
+        """
 
     def openList(self, name: str):
         if self.tasker is None:
