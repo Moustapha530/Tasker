@@ -58,6 +58,7 @@ class Tasker(FramelessMainWindow):
         mainLayout.addLayout(contentLayout)
         self.titleBar.tabWidget.tabCloseRequested.connect(self.closeTab)
         self.applyStylesheet()
+        self.addWelcomeTab()
 
     def addTaskList(self, taskList : TaskList, name = "Untitled") -> None:
         # Remove welcome tab if it's the only tab
@@ -137,10 +138,6 @@ class Tasker(FramelessMainWindow):
             background-color: #181f30; 
         }
 
-        #CustomTabWidget QTabBar {
-            background-color: #273044;
-        }
-
         #CustomTabWidget QTabBar::close-button {
             border-radius: 6px;
             image : url("ressources/images/cross.png");
@@ -180,6 +177,20 @@ class Tasker(FramelessMainWindow):
         QWidget {
             background-color: transparent;
             border: none;
+        }
+
+        QScrollBar:vertical {
+            width: 12px;
+            background: #2b2b2b;
+        }
+
+        QScrollBar::handle:vertical {
+            background: #888;
+            border-radius: 6px;
+        }
+
+        QScrollBar::handle:vertical:hover {
+            background: #aaa;
         }
         """
         self.setStyleSheet(stylesheet)
