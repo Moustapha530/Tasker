@@ -180,17 +180,57 @@ class Tasker(FramelessMainWindow):
         }
 
         QScrollBar:vertical {
-            width: 12px;
-            background: #2b2b2b;
+            background: transparent;
+            width: 8px;
+            margin: 0px;
+            border-radius: 4px;
         }
 
         QScrollBar::handle:vertical {
-            background: #888;
-            border-radius: 6px;
+            background: #3f51b5;        
+            min-height: 30px;
+            border-radius: 4px;
         }
 
         QScrollBar::handle:vertical:hover {
-            background: #aaa;
+            background: #5c6bc0;        
+        }
+
+        QScrollBar::add-line:vertical,
+        QScrollBar::sub-line:vertical {
+            height: 0px;
+        }
+
+        QScrollBar::add-page:vertical,
+        QScrollBar::sub-page:vertical {
+            background: none;
+        }
+
+        QScrollBar:horizontal {
+            background: transparent;
+            height: 8px;
+            margin: 0px;
+            border-radius: 4px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: #3f51b5;
+            min-width: 30px;
+            border-radius: 4px;
+        }
+
+        QScrollBar::handle:horizontal:hover {
+            background: #5c6bc0;
+        }
+
+        QScrollBar::add-line:horizontal,
+        QScrollBar::sub-line:horizontal {
+            width: 0px;
+        }
+
+        QScrollBar::add-page:horizontal,
+        QScrollBar::sub-page:horizontal {
+            background: none;
         }
         """
         self.setStyleSheet(stylesheet)
