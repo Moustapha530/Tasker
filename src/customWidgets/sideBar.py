@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout
 )
 from qtawesome import icon
+from .shadowWidgets import ShadowFrame
 
 class SideBar(QFrame):
     """
@@ -19,7 +20,7 @@ class SideBar(QFrame):
         mainLayout.setContentsMargins(10, 40, 10, 10)
         mainLayout.setSpacing(10)
 
-        btnFrame = QFrame(self)
+        btnFrame = ShadowFrame(parent=self)
         btnFrame.setFixedWidth(50)
         btnFrame.setObjectName("BtnFrame")
 
