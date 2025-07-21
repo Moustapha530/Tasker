@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QCheckBox, QPushButton, QVBoxLayout,
     QLineEdit, QScrollArea, QStackedLayout, QWidget, QGraphicsOpacityEffect
 )
+from qtawesome import icon
 
 
 class Task(QFrame):
@@ -24,6 +25,7 @@ class Task(QFrame):
         self.isExpanded = False
 
         self.setObjectName("Task")
+        self.setStyleSheet(self.applyStyleSheet())
 
         mainLayout = QVBoxLayout(self)
         mainLayout.setContentsMargins(10, 8, 10, 8)
@@ -37,27 +39,30 @@ class Task(QFrame):
         self.labelEdit.hide()
 
         self.renameBtn = QPushButton()
-        self.renameBtn.setIcon(QIcon("ressources/icons/edit.png"))
+        self.renameBtn.setIcon(icon("fa5s.edit", color="white"))
         self.renameBtn.setToolTip("Rename task")
 
         self.addBtn = QPushButton()
-        self.addBtn.setIcon(QIcon("ressources/icons/new.png"))
+        self.addBtn.setIcon(icon("fa5s.plus", color="white"))
         self.addBtn.setToolTip("Add sub-task")
 
         self.deleteBtn = QPushButton()
         self.deleteBtn.setObjectName("DeleteBtn")
-        self.deleteBtn.setIcon(QIcon("ressources/icons/delete.png"))
+        self.deleteBtn.setIcon(icon("fa5s.trash", color="white"))
         self.deleteBtn.setToolTip("Delete task")
 
         self.dropdownBtn = QPushButton()
-        self.dropdownBtn.setIcon(QIcon("ressources/icons/down.png"))
+        self.dropdownBtn.setIcon(icon("fa5s.arrow-down", color="white"))
         self.dropdownBtn.setToolTip("Show/Hide subtasks")
 
         self.labelContainer = QWidget()
         labelStack = QStackedLayout(self.labelContainer)
-        labelStack.setStackingMode(QStackedLayout.StackAll)
+        labelStack.setStackingMode(QStackedLayout.StackingMode.StackAll)
         labelStack.addWidget(self.label)
         labelStack.addWidget(self.labelEdit)
+
+        for btn in [self.renameBtn, self.addBtn, self.deleteBtn, self.dropdownBtn]:
+            btn.setFixedSize(32, 32)
 
         header.addWidget(self.dropdownBtn)
         header.addWidget(self.checkbox)
@@ -149,15 +154,78 @@ class Task(QFrame):
             height = self.subtaskContainer.sizeHint().height() + 20
             anim.setStartValue(0)
             anim.setEndValue(height)
-            self.dropdownBtn.setIcon(QIcon("ressources/icons/top.png"))
+            self.dropdownBtn.setIcon(icon("fa5s.arrow-up", color="white"))
         else:
             height = self.scrollBar.height()
             anim.setStartValue(height)
             anim.setEndValue(0)
-            self.dropdownBtn.setIcon(QIcon("ressources/icons/down.png"))
+            self.dropdownBtn.setIcon(icon("fa5s.arrow-down", color="white"))
 
         anim.start()
         self.scrollBar.anim = anim  # keep ref to prevent GC
+
+    def applyStyleSheet(self) -> str:
+        return """
+        #Task {
+            border: none;
+            color: white;
+        }
+
+        #Task QCheckBox {
+            spacing: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Base style for the checkbox indicator */
+        #Task QCheckBox::indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 2px solid #9e9e9e;
+            background-color: transparent;
+        }
+
+        /* Hover effect */
+        #Task QCheckBox::indicator:hover {
+            border: 2px solid #3f51b5;
+        }
+
+        /* Checked state */
+        #Task QCheckBox::indicator:checked {
+            background-color: #3f51b5;
+            border: 2px solid #3f51b5;
+        }
+
+        /* Optional: when checkbox is disabled */
+        #Task QCheckBox::indicator:disabled {
+            border: 2px solid #ccc;
+            background-color: #eee;
+        }
+
+        #Task QLabel {
+            color: white;
+        }
+
+        #Task QLineEdit {
+            border: none;
+            color: white;
+        }
+
+        #Task QPushButton:hover {
+            background-color: #4c566a;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        #Task QPushButton#DeleteBtn:hover {
+            background-color: red;
+        }
+
+        #Task QWidget {
+            border: none;
+        }
+        """
 
     def commitRename(self) -> None:
         """
